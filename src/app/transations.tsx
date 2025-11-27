@@ -81,7 +81,6 @@ export default function () {
                   </Text>
                   <Text style={[styles.headerCell, { flex: 2 }]}>Valor</Text>
                   <Text style={[styles.headerCell, { flex: 2 }]}>Tipo</Text>
-                  <Text style={[styles.headerCell, { flex: 2 }]}>Data</Text>
                 </View>
 
                 <View style={styles.divider} />
@@ -106,9 +105,7 @@ export default function () {
                   <Text style={[styles.valueCell, { flex: 2 }]}>
                     {item.type}
                   </Text>
-                  <Text style={[styles.valueCell, { flex: 2 }]}>
-                    {item.date}
-                  </Text>
+                 
                 </View>
               </Card.Content>
             </Card>

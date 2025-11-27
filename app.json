@@ -1,5 +1,5 @@
 {
-  "expo": { 
+  "expo": {
     "name": "projectapp",
     "slug": "projectapp",
     "version": "1.0.0",
@@ -39,6 +39,10 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "updates": {
+      "enabled": false,
+      "fallbackToCacheTimeout": 0
     }
   }
 }
