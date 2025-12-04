@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MM Auto Center - Documentação do Sistema</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        header {
+            background: linear-gradient(135deg, #6A1B9A 0%, #9C27B0 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 15s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        nav {
+            background: #4A148C;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            justify-content: center;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+        }
+
+        nav a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        main {
+            padding: 2rem;
+        }
+
+        section {
+            margin-bottom: 3rem;
+            padding: 2rem;
+            border-radius: 10px;
+            background: #f9f9f9;
+            border-left: 5px solid #6A1B9A;
+        }
+
+        h2 {
+            color: #6A1B9A;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        h3 {
+            color: #4A148C;
+            font-size: 1.5rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        h4 {
+            color: #6A1B9A;
+            font-size: 1.2rem;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        ul, ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(106, 27, 154, 0.2);
+        }
+
+        .feature-card h4 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .icon {
+            font-size: 1.5rem;
+        }
+
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 1rem;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .code-block code {
+            font-family: 'Courier New', monospace;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background: #6A1B9A;
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        .alert {
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 5px;
+            border-left: 4px solid;
+        }
+
+        .alert-info {
+            background: #e3f2fd;
+            border-color: #2196F3;
+            color: #1565C0;
+        }
+
+        .alert-warning {
+            background: #fff3e0;
+            border-color: #FF9800;
+            color: #E65100;
+        }
+
+        .alert-success {
+            background: #e8f5e9;
+            border-color: #4CAF50;
+            color: #2E7D32;
+        }
+
+        footer {
+            background: #4A148C;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            nav ul {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📱 MM Auto Center</h1>
+            <p>Sistema de Gestão Empresarial</p>
+            <p style="font-size: 1rem; margin-top: 0.5rem;">Alinhamento, Balanceamento e Cambagem</p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="#visao-geral">📋 Visão Geral</a></li>
+                <li><a href="#funcionalidades">⚙️ Funcionalidades</a></li>
+                <li><a href="#guia-uso">📖 Guia de Uso</a></li>
+                <li><a href="#banco-dados">🗄️ Banco de Dados</a></li>
+                <li><a href="#tecnologias">🛠️ Tecnologias</a></li>
+            </ul>
+        </nav>
+
+        <main>
+            <!-- Visão Geral -->
+            <section id="visao-geral">
+                <h2>📋 Visão Geral</h2>
+                <p>O <strong>MM Auto Center</strong> é um sistema completo de gestão empresarial desenvolvido especificamente para empresas que oferecem serviços automotivos. O aplicativo foi criado com React Native e Expo, garantindo compatibilidade com Android, iOS e Web.</p>
+                
+                <div class="alert alert-info">
+                    <strong>💡 Objetivo Principal:</strong> Facilitar o controle de estoque, gestão financeira e emissão de documentos comerciais de forma integrada e eficiente.
+                </div>
+
+                <h3>🎯 Principais Objetivos</h3>
+                <ul>
+                    <li><strong>Gestão de Estoque:</strong> Controle completo de produtos e quantidades</li>
+                    <li><strong>Controle Financeiro:</strong> Registro e análise de entradas e saídas</li>
+                    <li><strong>Relatórios Profissionais:</strong> Exportação em PDF e CSV</li>
+                    <li><strong>Mobilidade:</strong> Acesso de qualquer dispositivo</li>
+                    <li><strong>Interface Intuitiva:</strong> Fácil uso sem necessidade de treinamento complexo</li>
+                </ul>
+            </section>
+
+            <!-- Funcionalidades -->
+            <section id="funcionalidades">
+                <h2>⚙️ Funcionalidades Principais</h2>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4><span class="icon">📦</span> Gestão de Estoque</h4>
+                        <ul>
+                            <li>Cadastro de produtos</li>
+                            <li>Edição de informações</li>
+                            <li>Controle de quantidades</li>
+                            <li>Reabastecimento rápido</li>
+                            <li>Alertas de estoque baixo</li>
+                            <li>Exclusão de produtos</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <h4><span class="icon">💰</span> Transações Financeiras</h4>
+                        <ul>
+                            <li>Registro de entradas</li>
+                            <li>Registro de saídas</li>
+                            <li>Múltiplos métodos de pagamento</li>
+                            <li>Seleção de data</li>
+                            <li>Descrição detalhada</li>
+                            <li>Validação de dados</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <h4><span class="icon">📊</span> Fluxo de Caixa</h4>
+                        <ul>
+                            <li>Visualização diária</li>
+                            <li>Relatórios mensais</li>
+                            <li>Análise por método de pagamento</li>
+                            <li>Fluxo anual</li>
+                            <li>Valores acumulados</li>
+                            <li>Saldo geral</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <h4><span class="icon">📄</span> Exportação de Dados</h4>
+                        <ul>
+                            <li>Exportação em PDF</li>
+                            <li>Exportação em CSV</li>
+                            <li>Design profissional</li>
+                            <li>Compartilhamento fácil</li>
+                            <li>Dados formatados</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <h4><span class="icon">🧾</span> Vendas e Boletos</h4>
+                        <ul>
+                            <li>Geração de comprovantes</li>
+                            <li>Informações do cliente</li>
+                            <li>Cálculo automático</li>
+                            <li>Atualização de estoque</li>
+                            <li>Data de vencimento</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <h4><span class="icon">🔔</span> Notificações</h4>
+                        <ul>
+                            <li>Alertas de estoque baixo</li>
+                            <li>Confirmações de ações</li>
+                            <li>Feedback visual</li>
+                            <li>Mensagens de sucesso/erro</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Guia de Uso -->
+            <section id="guia-uso">
+                <h2>📖 Guia de Uso</h2>
+
+                <h3>1️⃣ Gerenciamento de Estoque</h3>
+                
+                <h4>Criar Produto</h4>
+                <ol>
+                    <li>No Dashboard, clique em <strong>"Estoque"</strong></li>
+                    <li>Se o estoque estiver vazio, clique em <strong>"CRIAR ESTOQUE"</strong></li>
+                    <li>Preencha os campos:
+                        <ul>
+                            <li><strong>Nome do Produto:</strong> Nome descritivo</li>
+                            <li><strong>Quantidade:</strong> Quantidade inicial</li>
+                            <li><strong>Custo:</strong> Preço unitário</li>
+                        </ul>
+                    </li>
+                    <li>Clique em <strong>"Salvar"</strong></li>
+                </ol>
+
+                <h4>Editar Produto</h4>
+                <ol>
+                    <li>No card do produto, clique em <strong>"Editar"</strong></li>
+                    <li>Modifique as informações necessárias</li>
+                    <li>Clique em <strong>"Salvar"</strong></li>
+                </ol>
+
+                <h4>Reabastecer Estoque</h4>
+                <ol>
+                    <li>Clique em <strong>"Reabastecer"</strong> no produto</li>
+                    <li>Informe a quantidade a adicionar</li>
+                    <li>Confirme a operação</li>
+                </ol>
+
+                <h4>Vender Produto e Gerar Boleto</h4>
+                <ol>
+                    <li>Clique em <strong>"Vender e Gerar Boleto"</strong></li>
+                    <li>Informe o nome do cliente</li>
+                    <li>Defina a quantidade vendida</li>
+                    <li>Clique em <strong>"GERAR"</strong></li>
+                    <li>O PDF será gerado e o estoque atualizado automaticamente</li>
+                </ol>
+
+                <div class="alert alert-warning">
+                    <strong>⚠️ Atenção:</strong> Produtos com estoque zerado não podem ser vendidos até serem reabastecidos.
+                </div>
+
+                <h3>2️⃣ Registro de Transações Financeiras</h3>
+                
+                <ol>
+                    <li>No Dashboard, clique em <strong>"Cadastrar transações"</strong></li>
+                    <li>Preencha os campos obrigatórios:
+                        <ul>
+                            <li><strong>Descrição:</strong> Descreva a transação</li>
+                            <li><strong>Tipo:</strong> Selecione "Entrada" ou "Saída"</li>
+                            <li><strong>Valor:</strong> Informe o valor (use vírgula para decimais)</li>
+                            <li><strong>Método de Pagamento:</strong> Pix, Cartão, Dinheiro ou Transferência</li>
+                            <li><strong>Data da Transação:</strong> Selecione a data no calendário</li>
+                        </ul>
+                    </li>
+                    <li>Clique em <strong>"Salvar"</strong></li>
+                </ol>
+
+                <div class="alert alert-success">
+                    <strong>✅ Dica:</strong> Você pode continuar cadastrando múltiplas transações sem sair da tela.
+                </div>
+
+                <h3>3️⃣ Visualização do Fluxo de Caixa</h3>
+                
+                <ol>
+                    <li>No Dashboard, clique em <strong>"Fluxo de caixa"</strong></li>
+                    <li>Visualize os relatórios organizados por:
+                        <ul>
+                            <li><strong>Fluxo Diário:</strong> Movimentações de cada dia</li>
+                            <li><strong>Fluxo Mensal:</strong> Resumo por mês</li>
+                            <li><strong>Fluxo por Método:</strong> Análise por forma de pagamento</li>
+                            <li><strong>Fluxo Anual:</strong> Total de entradas por ano</li>
+                            <li><strong>Acumulados:</strong> Valores totais gerais</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h3>4️⃣ Exportação de Relatórios</h3>
+                
+                <h4>Exportar PDF</h4>
+                <ol>
+                    <li>Na tela de Fluxo de Caixa, clique em <strong>"Exportar PDF"</strong></li>
+                    <li>O PDF será gerado automaticamente com:
+                        <ul>
+                            <li>Cabeçalho com logo e informações da empresa</li>
+                            <li>Resumo geral com entradas, saídas e saldo</li>
+                            <li>Tabelas formatadas para cada tipo de fluxo</li>
+                            <li>Rodapé com data de geração</li>
+                        </ul>
+                    </li>
+                    <li>Compartilhe o arquivo via WhatsApp, email, etc.</li>
+                </ol>
+
+                <h4>Exportar CSV</h4>
+                <ol>
+                    <li>Na tela de Fluxo de Caixa, clique em <strong>"Exportar CSV"</strong></li>
+                    <li>O arquivo CSV será gerado com todos os dados</li>
+                    <li>Ideal para análise em planilhas (Excel, Google Sheets)</li>
+                </ol>
+            </section>
+
+            <!-- Banco de Dados -->
+            <section id="banco-dados">
+                <h2>🗄️ Estrutura do Banco de Dados</h2>
+                
+                <p>O sistema utiliza <strong>SQLite</strong> para armazenamento local de dados, garantindo funcionamento offline e alta performance.</p>
+
+                <h3>Tabela: products</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Campo</th>
+                                <th>Tipo</th>
+                                <th>Descrição</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>id</code></td>
+                                <td>INTEGER</td>
+                                <td>Chave primária (auto incremento)</td>
+                            </tr>
+                            <tr>
+                                <td><code>nameProduct</code></td>
+                                <td>TEXT</td>
+                                <td>Nome do produto</td>
+                            </tr>
+                            <tr>
+                                <td><code>count</code></td>
+                                <td>INTEGER</td>
+                                <td>Quantidade em estoque</td>
+                            </tr>
+                            <tr>
+                                <td><code>cost</code></td>
+                                <td>TEXT</td>
+                                <td>Custo/Preço unitário</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>Tabela: cashflow</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Campo</th>
+                                <th>Tipo</th>
+                                <th>Descrição</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>id</code></td>
+                                <td>INTEGER</td>
+                                <td>Chave primária (auto incremento)</td>
+                            </tr>
+                            <tr>
+                                <td><code>description</code></td>
+                                <td>TEXT</td>
+                                <td>Descrição da transação</td>
+                            </tr>
+                            <tr>
+                                <td><code>type</code></td>
+                                <td>TEXT</td>
+                                <td>'entrada' ou 'saida'</td>
+                            </tr>
+                            <tr>
+                                <td><code>amount</code></td>
+                                <td>REAL</td>
+                                <td>Valor da transação</td>
+                            </tr>
+                            <tr>
+                                <td><code>method</code></td>
+                                <td>TEXT</td>
+                                <td>Método de pagamento (pix, cartao, dinheiro, transferencia)</td>
+                            </tr>
+                            <tr>
+                                <td><code>transaction_date</code></td>
+                                <td>DATE</td>
+                                <td>Data da transação</td>
+                            </tr>
+                            <tr>
+                                <td><code>created_at</code></td>
+                                <td>DATETIME</td>
+                                <td>Data de criação do registro (padrão: data atual)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>Views do Sistema</h3>
+                <p>O sistema cria automaticamente views SQL para facilitar consultas:</p>
+                <ul>
+                    <li><strong>fluxo_diario:</strong> Agrega transações por dia</li>
+                    <li><strong>fluxo_mensal:</strong> Agrega transações por mês</li>
+                    <li><strong>fluxo_metodo:</strong> Agrega transações por método de pagamento</li>
+                    <li><strong>fluxo_anual:</strong> Agrega entradas por ano</li>
+                    <li><strong>fluxo_entrada_acumulado:</strong> Total de entradas até hoje</li>
+                    <li><strong>fluxo_saida_acumulado:</strong> Total de saídas até hoje</li>
+                    <li><strong>fluxo_geral_acumulado:</strong> Saldo geral consolidado</li>
+                </ul>
+            </section>
+
+            <!-- Tecnologias -->
+            <section id="tecnologias">
+                <h2>🛠️ Tecnologias Utilizadas</h2>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>⚛️ React Native</h4>
+                        <p>Framework para desenvolvimento mobile multiplataforma</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <h4>📱 Expo</h4>
+                        <p>Plataforma para simplificar o desenvolvimento React Native</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <h4>🗄️ SQLite</h4>
+                        <p>Banco de dados local para armazenamento de dados</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <h4>🎨 React Native Paper</h4>
+                        <p>Biblioteca de componentes Material Design</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <h4>📄 Expo Print</h4>
+                        <p>Geração de PDF e impressão</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <h4>📤 Expo Sharing</h4>
+                        <p>Compartilhamento de arquivos</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <h4>💾 Expo File System</h4>
+                        <p>Gestão de arquivos locais</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <h4>🧭 Expo Router</h4>
+                        <p>Navegação entre telas</p>
+                    </div>
+                </div>
+
+                <h3>📦 Principais Dependências</h3>
+                <div class="code-block">
+                    <code>
+"expo": "^54.0.13"<br>
+"react": "19.1.0"<br>
+"react-native": "0.81.4"<br>
+"expo-sqlite": "~16.0.8"<br>
+"expo-print": "~15.0.7"<br>
+"expo-sharing": "~14.0.7"<br>
+"expo-file-system": "~19.0.14"<br>
+"react-native-paper": "^5.14.5"<br>
+"react-native-toast-message": "^2.3.3"
+                    </code>
+                </div>
+
+                <h3>🚀 Scripts Disponíveis</h3>
+                <div class="code-block">
+                    <code>
+npm start          # Inicia o servidor de desenvolvimento<br>
+npm run android    # Executa no Android<br>
+npm run ios        # Executa no iOS<br>
+npm run web        # Executa no navegador
+                    </code>
+                </div>
+            </section>
+
+            <!-- Considerações Finais -->
+            <section>
+                <h2>💡 Considerações Finais</h2>
+                
+                <div class="alert alert-info">
+                    <strong>📱 Multiplataforma:</strong> O aplicativo funciona em Android, iOS e Web, permitindo acesso de qualquer dispositivo.
+                </div>
+
+                <div class="alert alert-success">
+                    <strong>💾 Armazenamento Local:</strong> Todos os dados são armazenados localmente, garantindo privacidade e funcionamento offline.
+                </div>
+
+                <div class="alert alert-warning">
+                    <strong>🔄 Backup Recomendado:</strong> Como os dados são locais, recomenda-se exportar regularmente relatórios em PDF/CSV para backup.
+                </div>
+
+                <h3>📞 Contato</h3>
+                <p>O aplicativo inclui links para contato direto via:</p>
+                <ul>
+                    <li>📱 WhatsApp</li>
+                    <li>📘 Facebook</li>
+                    <li>📸 Instagram</li>
+                </ul>
+            </section>
+        </main>
+
+        <footer>
+            <p><strong>MM Auto Center</strong> - Sistema de Gestão Empresarial</p>
+            <p>Alinhamento, Balanceamento e Cambagem</p>
+            <p style="margin-top: 1rem; opacity: 0.8;">Documentação gerada em 2025</p>
+        </footer>
+    </div>
+</body>
+</html>

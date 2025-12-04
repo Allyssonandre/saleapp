@@ -3,6 +3,7 @@ import Entypo from "@expo/vector-icons/Entypo";
 import EvilIcons from "@expo/vector-icons/EvilIcons";
 import Feather from "@expo/vector-icons/Feather";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import * as FileSystem from "expo-file-system/legacy";
 import * as Print from "expo-print";
 import { useRouter } from "expo-router";
 import * as Sharing from "expo-sharing";
@@ -112,6 +113,50 @@ export default function Store() {
         type: "error",
         text1: "Erro ao resetar o estoque",
         text2: String(error),
+      });
+    }
+  };
+
+  // 🔹 NOVO: Função para exportar produtos em CSV
+  const exportProductsCSV = async () => {
+    try {
+      if (products.length === 0) {
+        Toast.show({
+          type: "info",
+          text1: "Nenhum produto para exportar",
+          text1Style: { fontSize: 20, fontWeight: "600" },
+        });
+        return;
+      }
+
+      // Cabeçalho do CSV
+      let csv = "ID,Nome do Produto,Quantidade,Custo (R$)\n";
+
+      // Adiciona cada produto
+      products.forEach((product) => {
+        csv += `${product.id},"${product.nameProduct}",${product.count},"${product.cost}"\n`;
+      });
+
+      // Salva o arquivo CSV
+      const fileUri = FileSystem.cacheDirectory + 'estoque_produtos.csv';
+      await FileSystem.writeAsStringAsync(fileUri, csv, {
+        encoding: FileSystem.EncodingType.UTF8,
+      });
+
+      // Compartilha o arquivo
+      await Sharing.shareAsync(fileUri);
+
+      Toast.show({
+        type: "success",
+        text1: "CSV exportado com sucesso!",
+        text1Style: { fontSize: 20, fontWeight: "600" },
+      });
+    } catch (err) {
+      console.error("Erro ao gerar CSV:", err);
+      Toast.show({
+        type: "error",
+        text1: "Erro ao exportar CSV",
+        text1Style: { fontSize: 20, fontWeight: "600" },
       });
     }
   };
@@ -412,21 +457,36 @@ export default function Store() {
       </View>
 
       {products.length > 0 ? (
-        <Button
-          icon="alert"
-          labelStyle={{ color: "white" }}
-          textColor="white"
-          mode="contained"
-          onPress={confirmResetStore}
-          style={{
-            marginBottom: 10,
-            backgroundColor: "red",
-            borderEndColor: "#000",
-            padding: 2,
-          }}
-        >
-          <Text style={styles.textReset}>LIMPAR ESTOQUE</Text>
-        </Button>
+        <View style={{ flexDirection: "row", gap: 8, marginBottom: 10, paddingHorizontal: 4 }}>
+          <Button
+            icon="alert"
+            labelStyle={{ color: "white" }}
+            textColor="white"
+            mode="contained"
+            onPress={confirmResetStore}
+            style={{
+              flex: 1,
+              backgroundColor: "red",
+              padding: 2,
+            }}
+          >
+            <Text style={styles.textReset}>LIMPAR ESTOQUE</Text>
+          </Button>
+          <Button
+            icon="file-delimited"
+            labelStyle={{ color: "white" }}
+            textColor="white"
+            mode="contained"
+            onPress={exportProductsCSV}
+            style={{
+              flex: 1,
+              backgroundColor: "#2e7d32",
+              padding: 2,
+            }}
+          >
+            <Text style={styles.textReset}>EXPORTAR CSV</Text>
+          </Button>
+        </View>
       ) : (
         <Button
           icon="plus-box"

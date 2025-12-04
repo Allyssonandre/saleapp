@@ -7,7 +7,7 @@ import React, { useEffect, useState } from "react";
 import { Alert, Platform, Text, View } from "react-native";
 import { Button, IconButton, TextInput } from "react-native-paper";
 import {
-  DatePickerModal,
+  DatePickerInput,
   pt,
   registerTranslation,
 } from "react-native-paper-dates";
@@ -30,21 +30,8 @@ export default function Createcashflow() {
   const [method, setMethod] = useState<
     "pix" | "cartao" | "dinheiro" | "transferencia"
   >("pix");
-  const [transactionDate, setTransactionDate] = useState<string>("");
-
   const [dbReady, setDbReady] = useState(false);
   const [date, setDate] = React.useState<Date | undefined>(undefined);
-  const [open, setOpen] = React.useState(false);
-  const onDismiss = React.useCallback(() => {
-    setOpen(false);
-  }, []);
-
-  const onConfirm = React.useCallback((params: any) => {
-    setOpen(false);
-    setDate(params.date);
-    const formatted = params.date.toISOString().split("T")[0];
-    setTransactionDate(formatted);
-  }, []);
 
   useEffect(() => {
     const setupDB = async () => {
@@ -105,7 +92,7 @@ export default function Createcashflow() {
     .replace(",", "."); // troca vírgula decimal por ponto
 
   const saveTransaction = async () => {
-    if (!description || !amount || !transactionDate) {
+    if (!description || !amount || !date) {
       Alert.alert("Erro", "Preencha todos os campos obrigatórios!");
       return;
     }
@@ -117,6 +104,13 @@ export default function Createcashflow() {
 
     try {
       const formattedAmount = parseFloat(normalizedAmount);
+
+      // Converte Date para YYYY-MM-DD para salvar no banco
+      const day = String(date.getDate()).padStart(2, "0");
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const year = date.getFullYear();
+      const isoDate = `${year}-${month}-${day}`;
+
       if (Platform.OS === "web") {
         // salva em memória
         memoryDb.push({
@@ -125,13 +119,13 @@ export default function Createcashflow() {
           type,
           amount: formattedAmount,
           method,
-          transaction_date: transactionDate,
+          transaction_date: isoDate,
           created_at: new Date().toISOString(),
         });
       } else {
         await db!.runAsync(
           "INSERT INTO cashflow (description, type, amount, method, transaction_date) VALUES (?, ?, ?, ?, ?)",
-          [description, type, formattedAmount, method, transactionDate]
+          [description, type, formattedAmount, method, isoDate]
         );
       }
 
@@ -145,7 +139,7 @@ export default function Createcashflow() {
       setType("entrada");
       setAmount("");
       setMethod("pix");
-      setTransactionDate("");
+      setDate(undefined);
     } catch (error) {
       console.error("Erro ao salvar o registro:", error);
       Alert.alert("Erro", "Erro ao tentar salvar o registro.");
@@ -264,30 +258,27 @@ export default function Createcashflow() {
           </Picker>
         </View>
 
-        <Text style={styles.poppinsBold}>
-          <IconButton icon="calendar" size={20} iconColor="#6A1B9A" />
-          Data da transação:
-        </Text>
-        <TextInput
-          value={transactionDate}
-          placeholder="YYYY-MM-DD"
-          style={styles.input}
-          editable={false}
-          mode="outlined"
-          right={
-            <TextInput.Icon icon="calendar" onPress={() => setOpen(true)} />
-          }
-          theme={{
-            colors: {
-              background: "#FFFFFF", // cor do fundo do input
-              primary: "#6A1B9A", // cor do foco/borda ativa
-              placeholder: "#999", // cor do placeholder
-            },
-          }}
-          outlineColor="#6A1B9A" // cor da borda quando não está focado
-          activeOutlineColor="#6A1B9A" // cor da borda quando focado
-          textColor="#000"
-        />
+        <View style={{ marginBottom: 20, backgroundColor: "#fff" }}>
+          <DatePickerInput
+            locale="pt"
+            label="Data da transação"
+            value={date}
+            onChange={(d) => setDate(d)}
+            inputMode="start"
+            style={{ backgroundColor: "#FFFFFF" }}
+            theme={{
+              colors: {
+                background: "#FFFFFF",
+                primary: "#6A1B9A",
+                placeholder: "#999",
+              },
+            }}
+            mode="outlined"
+            outlineColor="#6A1B9A"
+            activeOutlineColor="#6A1B9A"
+            textColor="#000"
+          />
+        </View>
 
         <Button
           icon={() => <Ionicons name="download" size={20} color="#FFF" />}
@@ -298,14 +289,6 @@ export default function Createcashflow() {
           <Text style={styles.buttonText}>Salvar</Text>
         </Button>
 
-        <DatePickerModal
-          locale="pt"
-          mode="single"
-          visible={open}
-          onDismiss={onDismiss}
-          date={date}
-          onConfirm={onConfirm}
-        />
         <Toast config={toastConfig} />
       </View>
     </View>

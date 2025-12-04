@@ -6,17 +6,17 @@ import {
 import { useRouter } from "expo-router";
 import * as SQLite from "expo-sqlite";
 import React, { useEffect, useState } from "react";
-import { Image, Linking, Pressable, StatusBar, Text, View } from "react-native";
+import { Linking, Pressable, StatusBar, Text, View } from "react-native";
 import {
   Appbar,
   Button,
-  Chip,
+  Card,
   Dialog,
   Divider,
   IconButton,
   Menu,
   Text as PaperText,
-  Portal,
+  Portal
 } from "react-native-paper";
 import { styles } from "../components/Dashboard/dashboardStyle";
 
@@ -26,6 +26,7 @@ export default function CreateCashflow() {
   const [menuVisible, setMenuVisible] = useState(false);
   const router = useRouter();
   const [showDialog, setShowDialog] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
 
   // 🔹 Referência para banco SQLite
   let db: SQLite.SQLiteDatabase;
@@ -122,30 +123,103 @@ export default function CreateCashflow() {
         </Menu>
       </Appbar.Header>
 
-      <View style={styles.centeredBox}>
-        <Chip
+
+      {/* Seção de Ajuda */}
+      <View style={{ paddingHorizontal: 16, marginTop: 16, marginBottom: 8 }}>
+        <Card
           style={{
-            height: 80,
-            paddingHorizontal: 20,
-            borderRadius: 24,
-            justifyContent: "center",
-            alignItems: "center",
-            backgroundColor: "#fff",
+            backgroundColor: showHelp ? "#F3E5F5" : "#fff",
+            elevation: 3,
+            borderRadius: 12,
           }}
-          textStyle={{ fontSize: 18 }}
-          onPress={() => console.log("Pressed")}
         >
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-            <Image
-              source={require("../../assets/images/mmautocenter.png")}
+          <Card.Content>
+            <View
               style={{
-                width: 120,
-                height: 120,
-                resizeMode: "contain",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
               }}
-            />
-          </View>
-        </Chip>
+            >
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                <Feather name="help-circle" size={24} color="#6A1B9A" />
+                <PaperText
+                  variant="titleMedium"
+                  style={{ color: "#6A1B9A", fontWeight: "bold" }}
+                >
+                  Como usar o app
+                </PaperText>
+              </View>
+              <IconButton
+                icon={showHelp ? "chevron-up" : "chevron-down"}
+                iconColor="#6A1B9A"
+                onPress={() => setShowHelp(!showHelp)}
+              />
+            </View>
+
+            {showHelp && (
+              <View style={{ marginTop: 12 }}>
+                <Divider style={{ marginBottom: 12 }} />
+
+                {/* Estoque */}
+                <View style={{ marginBottom: 16 }}>
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                    <Feather name="archive" size={18} color="#6A1B9A" />
+                    <PaperText
+                      variant="titleSmall"
+                      style={{ color: "#6A1B9A", fontWeight: "bold" }}
+                    >
+                      Estoque
+                    </PaperText>
+                  </View>
+                  <PaperText variant="bodyMedium" style={{ marginTop: 4, color: "#555" }}>
+                    Gerencie seus produtos: cadastre novos itens, edite informações,
+                    controle quantidades, reabasteça quando necessário e gere boletos
+                    de vendas. O sistema alerta quando o estoque está baixo.
+                  </PaperText>
+                </View>
+
+                {/* Cadastrar Transações */}
+                <View style={{ marginBottom: 16 }}>
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                    <Feather name="trending-up" size={18} color="#6A1B9A" />
+                    <PaperText
+                      variant="titleSmall"
+                      style={{ color: "#6A1B9A", fontWeight: "bold" }}
+                    >
+                      Cadastrar Transações
+                    </PaperText>
+                  </View>
+                  <PaperText variant="bodyMedium" style={{ marginTop: 4, color: "#555" }}>
+                    Registre todas as movimentações financeiras do seu negócio.
+                    Informe se é entrada ou saída, o valor, método de pagamento
+                    (Pix, Cartão, Dinheiro, Transferência) e a data. Mantenha seu
+                    controle financeiro sempre atualizado.
+                  </PaperText>
+                </View>
+
+                {/* Fluxo de Caixa */}
+                <View style={{ marginBottom: 8 }}>
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                    <Feather name="dollar-sign" size={18} color="#6A1B9A" />
+                    <PaperText
+                      variant="titleSmall"
+                      style={{ color: "#6A1B9A", fontWeight: "bold" }}
+                    >
+                      Fluxo de Caixa
+                    </PaperText>
+                  </View>
+                  <PaperText variant="bodyMedium" style={{ marginTop: 4, color: "#555" }}>
+                    Visualize relatórios completos das suas finanças: movimentações
+                    diárias, mensais e anuais, análise por método de pagamento e
+                    valores acumulados. Exporte relatórios profissionais em PDF ou
+                    CSV para análise e compartilhamento.
+                  </PaperText>
+                </View>
+              </View>
+            )}
+          </Card.Content>
+        </Card>
       </View>
 
       <View style={styles.containerviewedit}>

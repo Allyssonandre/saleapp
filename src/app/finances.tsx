@@ -5,6 +5,7 @@ import {
 } from "@expo/vector-icons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Fontisto from "@expo/vector-icons/Fontisto";
+import * as FileSystem from "expo-file-system/legacy";
 import * as Print from "expo-print";
 import { useRouter } from "expo-router";
 import * as Sharing from "expo-sharing";
@@ -39,6 +40,20 @@ let db: SQLite.SQLiteDatabase;
 
 export default function Finances() {
   const [menuVisible, setMenuVisible] = useState(false);
+
+  // Helper para formatar data YYYY-MM-DD -> DD/MM/YYYY
+  const formatDatePTBR = (dateString: string) => {
+    if (!dateString) return "";
+    const [year, month, day] = dateString.split("-");
+    return `${day}/${month}/${year}`;
+  };
+
+  // Helper para formatar mês YYYY-MM -> MM/YYYY
+  const formatMonthPTBR = (monthString: string) => {
+    if (!monthString) return "";
+    const [year, month] = monthString.split("-");
+    return `${month}/${year}`;
+  };
   const router = useRouter();
   const [showDialog, setShowDialog] = useState(false);
   const [cash, setCash] = useState<any[]>([]);
@@ -174,12 +189,53 @@ export default function Finances() {
     setAcumuladoGeral(geralAcumulado);
   };
 
-  const exportCSV = () => {
-    let csv = "Data/Período,Entradas,Saídas,Saldo\n";
-    fluxoMensal.forEach((m) => {
-      csv += `${m.mes},${m.total_entradas},${m.total_saidas},${m.saldo}\n`;
-    });
-    Alert.alert("CSV Export", csv);
+  const exportCSV = async () => {
+    try {
+      // Cabeçalho do CSV
+      let csv = "Tipo,Período/Data,Entradas,Saídas,Saldo\n";
+
+      // Adiciona fluxo diário
+      fluxoDiario.forEach((d) => {
+        csv += `Diário,${formatDatePTBR(d.dia)},${d.total_entradas?.toFixed(2)},${d.total_saidas?.toFixed(2)},${d.saldo?.toFixed(2)}\n`;
+      });
+
+      // Adiciona fluxo mensal
+      fluxoMensal.forEach((m) => {
+        csv += `Mensal,${formatMonthPTBR(m.mes)},${m.total_entradas?.toFixed(2)},${m.total_saidas?.toFixed(2)},${m.saldo?.toFixed(2)}\n`;
+      });
+
+      // Adiciona fluxo por método
+      fluxoMetodo.forEach((f) => {
+        csv += `Método,${f.method},${f.total_entradas?.toFixed(2)},${f.total_saidas?.toFixed(2)},${f.saldo?.toFixed(2)}\n`;
+      });
+
+      // Adiciona fluxo anual
+      fluxoAnual.forEach((a) => {
+        csv += `Anual,${a.ano},${a.total_entradas_ano?.toFixed(2)},0.00,${a.total_entradas_ano?.toFixed(2)}\n`;
+      });
+
+      // Salva o arquivo CSV
+      const fileUri = FileSystem.cacheDirectory + 'relatorio_financeiro.csv';
+      await FileSystem.writeAsStringAsync(fileUri, csv, {
+        encoding: FileSystem.EncodingType.UTF8,
+      });
+
+      // Compartilha o arquivo
+      await Sharing.shareAsync(fileUri);
+
+      Toast.show({
+        type: "success",
+        text1: "CSV exportado com sucesso!",
+        text1Style: { fontSize: 20, fontWeight: "600" },
+      });
+    } catch (err) {
+      console.error("Erro ao gerar CSV:", err);
+      Toast.show({
+        type: "error",
+        text1: "Erro ao exportar CSV",
+        text1Style: { fontSize: 20, fontWeight: "600" },
+      });
+    }
   };
 
   // === 🔹 Função para excluir todas as VIEWS ===
@@ -241,59 +297,134 @@ export default function Finances() {
   if (!dbReady) return <Text>Carregando dashboard...</Text>;
 
   // export
+  // export
   const exportPDF = async () => {
     try {
-      // Monta o HTML do dashboard
-      let htmlContent = `<h1 style="color:#6A1B9A;">📊 Dashboard Financeiro</h1>`;
+      const generateTable = (title: string, headers: string[], rows: string[][]) => {
+        if (rows.length === 0) return `<p>Sem dados para ${title}</p>`;
 
-      htmlContent += `<h2>🔹 Fluxo Diário</h2>`;
-      fluxoDiario.forEach((d) => {
-        htmlContent += `<p>Dia: ${d.dia} | Entradas: R$${d.total_entradas?.toFixed(
-          2
-        )} | Saídas: R$${d.total_saidas?.toFixed(2)} | Saldo: R$${d.saldo?.toFixed(
-          2
-        )}</p>`;
-      });
+        const headerRow = headers.map(h => `<th>${h}</th>`).join('');
+        const bodyRows = rows.map(row =>
+          `<tr>${row.map((cell, i) => `<td class="${i > 0 ? 'amount' : ''}">${cell}</td>`).join('')}</tr>`
+        ).join('');
 
-      htmlContent += `<h2>🔹 Fluxo Mensal</h2>`;
-      fluxoMensal.forEach((m) => {
-        htmlContent += `<p>Mês: ${m.mes} | Entradas: R$${m.total_entradas?.toFixed(
-          2
-        )} | Saídas: R$${m.total_saidas?.toFixed(2)} | Saldo: R$${m.saldo?.toFixed(
-          2
-        )}</p>`;
-      });
+        return `
+          <div class="section">
+            <h2>${title}</h2>
+            <table>
+              <thead><tr>${headerRow}</tr></thead>
+              <tbody>${bodyRows}</tbody>
+            </table>
+          </div>
+        `;
+      };
 
-      htmlContent += `<h2>🔹 Fluxo por Método</h2>`;
-      fluxoMetodo.forEach((f) => {
-        htmlContent += `<p>Método: ${f.method} | Entradas: R$${f.total_entradas?.toFixed(
-          2
-        )} | Saídas: R$${f.total_saidas?.toFixed(2)} | Saldo: R$${f.saldo?.toFixed(
-          2
-        )}</p>`;
-      });
+      const formatCurrency = (value: number | undefined, colorize = false) => {
+        const val = value ?? 0;
+        const formatted = `R$ ${val.toFixed(2)}`;
+        if (!colorize) return formatted;
+        return `<span class="${val >= 0 ? 'green' : 'red'}">${formatted}</span>`;
+      };
 
-      htmlContent += `<h2>🔹 Fluxo Anual</h2>`;
-      fluxoAnual.forEach((a) => {
-        htmlContent += `<p>Ano: ${a.ano} | Total Entradas: R$${a.total_entradas_ano?.toFixed(
-          2
-        )}</p>`;
-      });
+      const now = new Date();
+      const dateStr = now.toLocaleDateString("pt-BR");
+      const timeStr = now.toLocaleTimeString("pt-BR");
 
-      htmlContent += `<h2>🔹 Acumulados</h2>`;
-      acumuladoEntradaAtual.forEach((a) => {
-        htmlContent += `<p style="color:green;">Entradas acumuladas até hoje: R$${a.total_entradas_acumulado?.toFixed(
-          2
-        )}</p>`;
-      });
-      acumuladoSaidaAtual.forEach((a) => {
-        htmlContent += `<p style="color:red;">Saídas acumuladas até hoje: R$${a.total_saidas_acumulado?.toFixed(
-          2
-        )}</p>`;
-      });
-      acumuladoGeral.forEach((g) => {
-        htmlContent += `<p>Saldo Geral: R$${g.saldo_geral?.toFixed(2)}</p>`;
-      });
+      let htmlContent = `
+        <html>
+        <head>
+          <style>
+            body { font-family: 'Helvetica', 'Arial', sans-serif; padding: 20px; color: #333; }
+            .company-name { color: #6A1B9A; text-align: center; margin-bottom: 5px; font-size: 28px; font-weight: bold; }
+            .company-subtitle { text-align: center; color: #6A1B9A; font-size: 16px; margin-bottom: 10px; font-style: italic; }
+            h1 { color: #6A1B9A; text-align: center; margin-bottom: 5px; font-size: 22px; }
+            .subtitle { text-align: center; color: #666; font-size: 14px; margin-bottom: 30px; }
+            h2 { color: #6A1B9A; border-bottom: 2px solid #6A1B9A; padding-bottom: 5px; margin-top: 25px; font-size: 18px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+            th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+            th { background-color: #f8f9fa; color: #444; font-weight: bold; }
+            tr:nth-child(even) { background-color: #f9f9f9; }
+            .amount { text-align: right; font-family: 'Courier New', monospace; font-weight: 500; }
+            .green { color: #2e7d32; }
+            .red { color: #c62828; }
+            .footer { margin-top: 50px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #eee; padding-top: 20px; }
+            .summary-box { background-color: #f3e5f5; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+            .summary-item { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 16px; }
+            .summary-total { font-weight: bold; font-size: 18px; border-top: 1px solid #d1c4e9; padding-top: 10px; margin-top: 5px; }
+          </style>
+        </head>
+        <body>
+          <div class="company-name">MM Auto Center</div>
+          <div class="company-subtitle">Alinhamento, balanceamento e cambagem</div>
+          <h1>Relatório Financeiro</h1>
+          <div class="subtitle">Gerado em ${dateStr} às ${timeStr}</div>
+
+          <!-- Resumo Geral -->
+          ${acumuladoGeral.map(g => `
+            <div class="summary-box">
+              <div class="summary-item">
+                <span>Total Entradas:</span>
+                <span class="green">${formatCurrency(g.total_entradas_geral)}</span>
+              </div>
+              <div class="summary-item">
+                <span>Total Saídas:</span>
+                <span class="red">${formatCurrency(g.total_saidas_geral)}</span>
+              </div>
+              <div class="summary-item summary-total">
+                <span>Saldo Geral:</span>
+                <span>${formatCurrency(g.saldo_geral, true)}</span>
+              </div>
+            </div>
+          `).join('')}
+
+          ${generateTable(
+        "Fluxo Diário",
+        ["Data", "Entradas", "Saídas", "Saldo"],
+        fluxoDiario.map(d => [
+          formatDatePTBR(d.dia),
+          formatCurrency(d.total_entradas, true),
+          formatCurrency(d.total_saidas, true),
+          formatCurrency(d.saldo, true)
+        ])
+      )}
+
+          ${generateTable(
+        "Fluxo Mensal",
+        ["Mês", "Entradas", "Saídas", "Saldo"],
+        fluxoMensal.map(m => [
+          formatMonthPTBR(m.mes),
+          formatCurrency(m.total_entradas, true),
+          formatCurrency(m.total_saidas, true),
+          formatCurrency(m.saldo, true)
+        ])
+      )}
+
+          ${generateTable(
+        "Fluxo por Método",
+        ["Método", "Entradas", "Saídas", "Saldo"],
+        fluxoMetodo.map(f => [
+          f.method,
+          formatCurrency(f.total_entradas, true),
+          formatCurrency(f.total_saidas, true),
+          formatCurrency(f.saldo, true)
+        ])
+      )}
+
+          ${generateTable(
+        "Fluxo Anual",
+        ["Ano", "Total Entradas"],
+        fluxoAnual.map(a => [
+          a.ano,
+          formatCurrency(a.total_entradas_ano, true)
+        ])
+      )}
+
+          <div class="footer">
+            <p>Relatório gerado pelo App FlowCash</p>
+          </div>
+        </body>
+        </html>
+      `;
 
       // Gera PDF
       const { uri } = await Print.printToFileAsync({ html: htmlContent });
@@ -488,14 +619,24 @@ export default function Finances() {
           </Button>
         </View>
         {/* ---------- EXPORTAÇÃO ---------- */}
-        <Button
-          mode="contained"
-          onPress={exportPDF}
-          style={{ marginVertical: 16, backgroundColor: "#6A1B9A" }}
-          labelStyle={{ color: "#fff", fontWeight: "bold" }}
-        >
-          Exportar PDF
-        </Button>
+        <View style={{ flexDirection: "row", gap: 10, marginVertical: 16 }}>
+          <Button
+            mode="contained"
+            onPress={exportPDF}
+            style={{ flex: 1, backgroundColor: "#6A1B9A" }}
+            labelStyle={{ color: "#fff", fontWeight: "bold" }}
+          >
+            Exportar PDF
+          </Button>
+          <Button
+            mode="contained"
+            onPress={exportCSV}
+            style={{ flex: 1, backgroundColor: "#2e7d32" }}
+            labelStyle={{ color: "#fff", fontWeight: "bold" }}
+          >
+            Exportar CSV
+          </Button>
+        </View>
         {/* ---------- FLUXO DIÁRIO ---------- */}
         <Text style={{ fontSize: 18, fontWeight: "bold", marginTop: 16 }}>
           🔹 Fluxo Diário
@@ -509,7 +650,7 @@ export default function Finances() {
                 variant="titleMedium"
                 style={{ color: "#6A1B9A", fontWeight: "bold" }}
               >
-                Dia: {d.dia}
+                Dia: {formatDatePTBR(d.dia)}
               </PaperText>
               <View
                 style={{
@@ -558,7 +699,7 @@ export default function Finances() {
               }}
             >
               <Text style={{ color: "#6A1B9A", fontWeight: "bold" }}>
-                Mês: {m.mes}
+                Mês: {formatMonthPTBR(m.mes)}
               </Text>
               <Divider style={{ marginVertical: 6 }} />
               <Text>Entradas: R$ {m.total_entradas?.toFixed(2)}</Text>
