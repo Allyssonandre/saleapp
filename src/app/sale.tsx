@@ -1,55 +1,55 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Text, Alert, Pressable, Platform } from 'react-native';
-import { TextInput, Button } from 'react-native-paper';
 import EvilIcons from '@expo/vector-icons/EvilIcons';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as SQLite from 'expo-sqlite';
-import Toast from 'react-native-toast-message';
 import * as qs from 'qs';
+import React, { useEffect, useState } from 'react';
+import { Alert, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Button, TextInput } from 'react-native-paper';
+import Toast from 'react-native-toast-message';
 
-function execSqlAsync(db: SQLite.WebSQLDatabase, sql: string, params: any[] = []): Promise<SQLite.SQLResultSet> {
-  return new Promise((resolve, reject) => {
-    db.transaction(tx => {
-      tx.executeSql(
-        sql,
-        params,
-        (_, result) => resolve(result),
-        (_, error) => {
-          reject(error);
-          return false;
-        }
-      );
-    });
-  });
+async function execSqlAsync(db: SQLite.SQLiteDatabase, sql: string, params: any[] = []): Promise<any> {
+  return await db.runAsync(sql, params);
+}
+
+interface Product {
+  id: number;
+  nameProduct: string;
+  count: string;
+  cost: string;
 }
 
 export default function Sale() {
   const router = useRouter();
   const { product } = useLocalSearchParams();
 
-  const [db, setDb] = useState<SQLite.WebSQLDatabase | null>(null);
+  const [db, setDb] = useState<SQLite.SQLiteDatabase | null>(null);
   const [quantity, setQuantity] = useState('1');
   const [client, setClient] = useState('Nome do cliente');
 
   useEffect(() => {
     if (Platform.OS !== 'web') {
-      const database = SQLite.openDatabaseAsync('products');
-      setDb(database);
+      const initDb = async () => {
+        const database = await SQLite.openDatabaseAsync('products');
+        setDb(database);
 
-      execSqlAsync(database, `
-        CREATE TABLE IF NOT EXISTS orders (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          productId INTEGER,
-          nameProduct TEXT,
-          client TEXT,   
-          quantity TEXT,
-          INTEGER NOT NULL,
-          createdAt TEXT
-        );
-      `).catch(error => {
-        console.error('Erro ao inicializar banco:', error);
-        Alert.alert('Erro', 'Não foi possível abrir o banco de dados');
-      });
+        try {
+          await execSqlAsync(database, `
+            CREATE TABLE IF NOT EXISTS orders (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              productId INTEGER,
+              nameProduct TEXT,
+              client TEXT,   
+              quantity TEXT,
+              cost TEXT,
+              createdAt TEXT
+            );
+          `);
+        } catch (error) {
+          console.error('Erro ao inicializar banco:', error);
+          Alert.alert('Erro', 'Não foi possível abrir o banco de dados');
+        }
+      };
+      initDb();
     }
   }, []);
 
@@ -62,9 +62,10 @@ export default function Sale() {
     );
   }
 
-  let parsed;
+  const productString = Array.isArray(product) ? product[0] : product;
+  let parsed: Product;
   try {
-    parsed = JSON.parse(product);
+    parsed = JSON.parse(productString);
   } catch {
     return (
       <View style={styles.container}>

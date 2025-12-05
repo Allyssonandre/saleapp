@@ -19,6 +19,7 @@ import {
   Portal
 } from "react-native-paper";
 import { styles } from "../components/Dashboard/dashboardStyle";
+import { Footer } from "../components/common/Footer";
 
 const MORE_ICON = "dots-vertical";
 
@@ -273,6 +274,7 @@ export default function CreateCashflow() {
           </Dialog.Actions>
         </Dialog>
       </Portal>
+      <Footer />
     </View>
   );
 }

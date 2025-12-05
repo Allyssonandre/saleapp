@@ -1,10 +1,10 @@
+import { styles } from '@/src/components/createform/createform';
 import EvilIcons from '@expo/vector-icons/EvilIcons';
 import { useRouter } from 'expo-router';
 import * as SQLite from 'expo-sqlite';
 import React, { useEffect } from 'react';
 import { Pressable, View } from 'react-native';
 import { Button, TextInput } from 'react-native-paper';
-import { styles } from '../components/createform/createform';
 import Toast from 'react-native-toast-message';
 
 let db: SQLite.SQLiteDatabase;
@@ -39,7 +39,7 @@ export default function Home() {
 
     setupDatabase();
   }, []);
-  
+
   const createProduct = async () => {
     if (!product || !count || !cost) {
       alert('Preencha todos os campos!');
@@ -51,7 +51,7 @@ export default function Home() {
         product,
         count,
         cost
-        );
+      );
 
       if (result.lastInsertRowId) {
         Toast.show({
@@ -74,42 +74,42 @@ export default function Home() {
   return (
     <View style={styles.container}>
 
-    <Pressable onPress={() => router.push('/dashboard')}>
-    <EvilIcons name="arrow-left" size={35} color="#6A1B9A" />
-    </Pressable>
+      <Pressable onPress={() => router.push('/dashboard')}>
+        <EvilIcons name="arrow-left" size={35} color="#6A1B9A" />
+      </Pressable>
 
-    <TextInput
-    mode="outlined"
-    label="Produto"
-    placeholder="Produto"
-    right={<TextInput.Affix text="/100" />}
-    value={product}
-    onChangeText={setProduct}
-    />
+      <TextInput
+        mode="outlined"
+        label="Produto"
+        placeholder="Produto"
+        right={<TextInput.Affix text="/100" />}
+        value={product}
+        onChangeText={setProduct}
+      />
 
-    <TextInput
-    mode="outlined"
-    label="Quantidade"
-    placeholder="Quantidade"
-    keyboardType="numeric"
-    right={<TextInput.Affix text="/100" />}
-    value={count}
-    onChangeText={setCount}
-    />
+      <TextInput
+        mode="outlined"
+        label="Quantidade"
+        placeholder="Quantidade"
+        keyboardType="numeric"
+        right={<TextInput.Affix text="/100" />}
+        value={count}
+        onChangeText={setCount}
+      />
 
-    <TextInput
-    mode="outlined"
-    label="Valor"
-    placeholder="Valor"
-    keyboardType="numeric"
-    right={<TextInput.Affix text="/100" />}
-    value={cost}
-    onChangeText={setCost}
-    />
+      <TextInput
+        mode="outlined"
+        label="Valor"
+        placeholder="Valor"
+        keyboardType="numeric"
+        right={<TextInput.Affix text="/100" />}
+        value={cost}
+        onChangeText={setCost}
+      />
 
-    <Button icon="send" mode="contained" style={{ marginTop: 16 }} onPress={() => createProduct()}>
-    Criar produto
-    </Button>
+      <Button icon="send" mode="contained" style={{ marginTop: 16 }} onPress={() => createProduct()}>
+        Criar produto
+      </Button>
     </View>
-    );
+  );
 }

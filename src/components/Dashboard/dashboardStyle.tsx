@@ -27,8 +27,10 @@ export const styles = StyleSheet.create({
   },
   containerviewedit: {
     flexDirection: "row",
-    justifyContent: "space-around",
+    justifyContent: "center",
     paddingVertical: 12,
+    paddingHorizontal: 16, // Add horizontal breathing room
+    gap: 10,
     backgroundColor: "#fff",
   },
   action: {
@@ -75,6 +77,7 @@ export const styles = StyleSheet.create({
     backgroundColor: "#fff",
     elevation: 4,
   },
+
   container2: { flex: 1, padding: 16, backgroundColor: "#F8F9FA" },
   title: {
     fontSize: 22,
@@ -109,13 +112,15 @@ export const styles = StyleSheet.create({
     borderColor: "#E5E5E5",
   },
   carddata: {
-    borderRadius: 16,
+    marginVertical: 4,
+    marginHorizontal: 10,
     backgroundColor: "#fff",
+    borderRadius: 8,
+    elevation: 2,
+    padding: 0,
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 6,
-    elevation: 3,
-    marginBottom: 12,
   },
   itemdata: {
     paddingVertical: 10,
@@ -183,15 +188,17 @@ export const styles = StyleSheet.create({
   },
   row2: {
     flexDirection: "row",
-    gap: 12,
+    gap: 10,
   },
 
   btnRow: {
+    flex: 1, // Allow buttons to share available width
     flexDirection: "row",
+    justifyContent: "center", // Center content within button
     alignItems: "center",
     gap: 6,
-    paddingVertical: 10,
-    paddingHorizontal: 25,
+    paddingVertical: 12, // Increased slightly for better touch target verticality
+    paddingHorizontal: 9, // Reduced from 25 to fit better
     borderRadius: 10,
     backgroundColor: "#F2E9F7",
   },

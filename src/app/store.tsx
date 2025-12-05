@@ -1,24 +1,24 @@
-import AntDesign from "@expo/vector-icons/AntDesign";
-import Entypo from "@expo/vector-icons/Entypo";
-import EvilIcons from "@expo/vector-icons/EvilIcons";
 import Feather from "@expo/vector-icons/Feather";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { Asset } from "expo-asset";
 import * as FileSystem from "expo-file-system/legacy";
 import * as Print from "expo-print";
 import { useRouter } from "expo-router";
 import * as Sharing from "expo-sharing";
 import * as SQLite from "expo-sqlite";
 import React, { useEffect, useState } from "react";
-import { Alert, FlatList, Platform, Text, View } from "react-native";
+import { Alert, FlatList, Platform, StatusBar, Text, View } from "react-native";
 import {
+  Appbar,
   Button,
   Card,
   Dialog,
   IconButton,
   Portal,
-  TextInput,
+  TextInput
 } from "react-native-paper";
 import Toast from "react-native-toast-message";
+import { Footer } from "../components/common/Footer";
 import { styles } from "../components/store/storeStyles";
 
 let db: SQLite.SQLiteDatabase;
@@ -297,6 +297,19 @@ export default function Store() {
     setSelectedProduct(null);
     await reloadProducts();
 
+    // Carregar imagem e converter para Base64
+    let logoHtml = "";
+    try {
+      const asset = Asset.fromModule(require("../../assets/images/mmautocenter.png"));
+      await asset.downloadAsync();
+      const base64 = await FileSystem.readAsStringAsync(asset.localUri || asset.uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+      logoHtml = `<img src="data:image/png;base64,${base64}" style="width: 100px; margin-bottom: 10px;" />`;
+    } catch (e) {
+      console.log("Erro ao carregar imagem para PDF:", e);
+    }
+
     const currentDate = new Date().toLocaleDateString();
     const unitPrice = parseFloat(selectedProduct?.cost || "0"); // custo unitário
     const quantityNumber = parseInt(quantity.toString(), 10); // quantidade (número inteiro)
@@ -327,32 +340,39 @@ export default function Store() {
         padding-bottom: 15px;
         border-bottom: 2px solid #e0e0e0;
       }
+      
+      .header img {
+        display: block;
+        margin: 0 auto;
+      }
 
       .header h2 {
         margin: 0;
         color: #6A1B9A;
       }
 
+      /* ... styles ... */
+      
       .section {
         margin-top: 20px;
       }
-
+      
       .field {
         display: flex;
         justify-content: space-between;
         margin-bottom: 10px;
         font-size: 15px;
       }
-
+      
       .label {
         font-weight: bold;
         color: #333;
       }
-
+      
       .value {
         color: #555;
       }
-
+      
       .total {
         font-size: 18px;
         font-weight: bold;
@@ -360,7 +380,7 @@ export default function Store() {
         border-top: 2px solid #e0e0e0;
         padding-top: 10px;
       }
-
+      
       .footer {
         margin-top: 25px;
         font-size: 12px;
@@ -374,6 +394,7 @@ export default function Store() {
   <body>
     <div class="container">
       <div class="header">
+        ${logoHtml}
         <h2>MM Auto Center</h2>
         <p>ALINHAMENTO, BALANCEAMENTO E CAMBAGEM</p>
         <h2>Comprovante de Pagamento</h2>
@@ -440,147 +461,142 @@ export default function Store() {
         text2: `Cliente: ${clientName}`,
       });
     } catch (err) {
-      Alert.alert("Erro ao gerar o boleto", (err as Error).message);
     }
   };
 
+  const totalStockValue = products.reduce((sum, item) => {
+    const cost = parseFloat(item.cost.toString().replace(",", "."));
+    const count = parseInt(item.count.toString());
+    return sum + (isNaN(cost) || isNaN(count) ? 0 : cost * count);
+  }, 0);
+
   return (
     <View style={styles.container}>
-      <View style={styles.containerviewedit}>
-        <View style={styles.action}>
-          <IconButton
-            icon={() => <Feather name="corner-up-left" size={24} color="#6A1B9A" />}
-            onPress={() => router.push("/dashboard")}
-          />
-        </View>
-      </View>
+      <Appbar.Header style={{ backgroundColor: "#fff", marginTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }}>
+        <Appbar.BackAction onPress={() => router.push("/dashboard")} color="#6A1B9A" />
+        <Appbar.Content title="Estoque" titleStyle={{ color: "#6A1B9A", fontWeight: "bold" }} />
+        {products.length > 0 && (
+          <View style={{ flexDirection: "row" }}>
+            <IconButton icon="delete-sweep" iconColor="#d32f2f" onPress={confirmResetStore} />
+          </View>
+        )}
+      </Appbar.Header>
 
-      {products.length > 0 ? (
-        <View style={{ flexDirection: "row", gap: 8, marginBottom: 10, paddingHorizontal: 4 }}>
+      {products.length === 0 ? (
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center", marginTop: 50 }}>
+          <Feather name="package" size={60} color="#ccc" />
+          <Text style={{ color: "#999", fontSize: 16, marginTop: 10 }}>Seu estoque está vazio.</Text>
           <Button
-            icon="alert"
-            labelStyle={{ color: "white" }}
-            textColor="white"
             mode="contained"
-            onPress={confirmResetStore}
-            style={{
-              flex: 1,
-              backgroundColor: "red",
-              padding: 2,
-            }}
+            style={{ marginTop: 20, backgroundColor: "#6A1B9A" }}
+            onPress={() => router.push("/createform")}
           >
-            <Text style={styles.textReset}>LIMPAR ESTOQUE</Text>
-          </Button>
-          <Button
-            icon="file-delimited"
-            labelStyle={{ color: "white" }}
-            textColor="white"
-            mode="contained"
-            onPress={exportProductsCSV}
-            style={{
-              flex: 1,
-              backgroundColor: "#2e7d32",
-              padding: 2,
-            }}
-          >
-            <Text style={styles.textReset}>EXPORTAR CSV</Text>
+            Adicionar Primeiro Produto
           </Button>
         </View>
-      ) : (
-        <Button
-          icon="plus-box"
-          labelStyle={{ color: "white" }}
-          textColor="white"
-          mode="contained"
-          onPress={() => router.push("/createform")} // cria estoque ou cadastra produtos
-          style={{
-            marginBottom: 10,
-            backgroundColor: "#6A1B9A",
-            borderEndColor: "#000",
-            padding: 2,
-          }}
-        >
-          <Text style={styles.textReset}>CRIAR ESTOQUE</Text>
-        </Button>
+      ) : null}
+
+      {products.length > 0 && (
+        <Card style={{ margin: 10, backgroundColor: "#6A1B9A", padding: 10 }}>
+          <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+            <View>
+              <Text style={{ color: "#fff", fontWeight: "bold", fontSize: 16 }}>
+                Valor Total em Estoque
+              </Text>
+              <Text style={{ color: "#fff", fontWeight: "bold", fontSize: 18 }}>
+                R$ {totalStockValue.toFixed(2).replace(".", ",")}
+              </Text>
+            </View>
+            <IconButton
+              icon="file-delimited"
+              iconColor="#fff"
+              onPress={exportProductsCSV}
+              style={{ backgroundColor: "rgba(255,255,255,0.2)" }}
+            />
+          </View>
+        </Card>
       )}
+
       <FlatList
         data={products}
+        contentContainerStyle={{ padding: 10, paddingBottom: 150 }}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <Card style={styles.card}>
-            <Card.Content>
-              <Text style={styles.title}>
-                <Entypo name="shopping-cart" size={20} color="#6A1B9A" />{" "}
-                {capitalizeFirstLetter(item.nameProduct)}
-              </Text>
-              <Text style={styles.textcolor}>Quantidade: {item.count}</Text>
-              <Text style={styles.pryce}>R$ {item.cost}</Text>
-
+          <Card style={{ marginBottom: 15, backgroundColor: "#fff", elevation: 3 }}>
+            <Card.Title
+              title={capitalizeFirstLetter(item.nameProduct)}
+              subtitle={`Qtd: ${item.count} | Custo: R$ ${item.cost}`}
+              titleStyle={{ fontWeight: "bold", color: "#6A1B9A" }}
+              subtitleStyle={{ color: "#777" }}
+              left={(props) => <Feather {...props} name="package" size={30} color="#6A1B9A" />}
+            />
+            <Card.Actions>
               {parseInt(item.count) <= 0 ? (
-                <>
-                  <Text style={{ color: "red", marginTop: 8 }}>
-                    ⚠ Estoque esgotado!
-                  </Text>
-                  <Button
-                    mode="contained"
-                    onPress={() => openReplenishDialog(item)}
-                    style={{ marginTop: 8, marginBottom: 4 }}
-                  >
-                    Reabastecer
-                  </Button>
-                </>
+                <Button
+                  mode="contained"
+                  onPress={() => openReplenishDialog(item)}
+                  buttonColor="#D32F2F"
+                  textColor="#fff"
+                  compact
+                >
+                  Reabastecer
+                </Button>
               ) : (
-                <>
-                  <Button
-                    mode="outlined"
-                    style={{ marginBottom: 4 }}
-                    onPress={() => openBoletoDialog(item)}
-                  >
-                    <Feather name="paperclip" size={15} color="#6A1B9A" />
-                    <Text style={styles.textButton}>Vender e Gerar Boleto</Text>
-                  </Button>
-                </>
+                <Button
+                  mode="outlined"
+                  onPress={() => openBoletoDialog(item)}
+                  textColor="#6A1B9A"
+                  style={{ borderColor: "#6A1B9A" }}
+                  compact
+                >
+                  Vender
+                </Button>
               )}
 
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  marginTop: 4,
-                }}
-              >
-                <Button mode="text" onPress={() => openEditDialog(item)}>
-                  <AntDesign name="edit" size={20} color="#6A1B9A" />{" "}
-                  <Text style={styles.textButton}>Editar</Text>
-                </Button>
-                <Button
-                  mode="text"
-                  textColor="red"
-                  onPress={() => {
-                    console.log("ID do item:", item.id);
-                    confirmDelete(item.id, item.nameProduct);
-                  }}
-                >
-                  <EvilIcons name="trash" size={25} color="red" /> Excluir
-                </Button>
-              </View>
-            </Card.Content>
+              <View style={{ flex: 1 }} />
+
+              <IconButton
+                icon="pencil"
+                iconColor="#6A1B9A"
+                size={20}
+                mode="contained"
+                onPress={() => openEditDialog(item)}
+                containerColor="#f0e6f5"
+                style={{ marginHorizontal: 2 }}
+              />
+              <IconButton
+                icon="delete"
+                iconColor="#D32F2F"
+                size={20}
+                mode="contained"
+                onPress={() => confirmDelete(item.id, item.nameProduct)}
+                containerColor="#ffebee"
+                style={{ marginHorizontal: 2 }}
+              />
+            </Card.Actions>
           </Card>
         )}
       />
-      <Button
-        icon="plus-box"
-        labelStyle={{ color: "white" }}
-        textColor="white"
-        mode="contained"
-        style={{
-          backgroundColor: "#6A1B9A",
-          marginBottom: 40,
-        }}
-        onPress={() => router.push("/createform")}
-      >
-        CRIAR ESTOQUE
-      </Button>
+
+      {
+        products.length > 0 && (
+          <Button
+            icon="plus"
+            mode="contained"
+            textColor="#fff"
+            style={{
+              position: "absolute",
+              bottom: 80,
+              right: 20,
+              backgroundColor: "#6A1B9A",
+              elevation: 5
+            }}
+            onPress={() => router.push("/createform")}
+          >
+            Novo Produto
+          </Button>
+        )
+      }
       {/* Modal Reabastecer */}
       <Portal>
         <Dialog
@@ -765,7 +781,7 @@ export default function Store() {
         </Dialog>
       </Portal>
       {/* 🔹 NOVO: Dialog de exclusão */}
-      <Portal>
+      < Portal >
         <Dialog
           visible={deleteDialogVisible}
           onDismiss={() => setDeleteDialogVisible(false)}
@@ -806,9 +822,9 @@ export default function Store() {
             </Button>
           </Dialog.Actions>
         </Dialog>
-      </Portal>
+      </Portal >
       {/* 🔹 NOVO: Dialog de reset do estoque */}
-      <Portal>
+      < Portal >
         <Dialog
           visible={resetDialogVisible}
           onDismiss={() => setResetDialogVisible(false)}
@@ -842,9 +858,10 @@ export default function Store() {
             </Button>
           </Dialog.Actions>
         </Dialog>
-      </Portal>
+      </Portal >
 
       <Toast />
-    </View>
+      <Footer />
+    </View >
   );
 }

@@ -30,11 +30,12 @@ import {
   Portal,
 } from "react-native-paper";
 import Toast from "react-native-toast-message";
+import { Footer } from "../components/common/Footer";
 
+import { useFocusEffect } from "expo-router";
 import * as SQLite from "expo-sqlite";
+import React, { useCallback, useState } from "react";
 import { styles } from "../components/Dashboard/dashboardStyle";
-
-import React, { useEffect, useState } from "react";
 const MORE_ICON = "dots-vertical";
 let db: SQLite.SQLiteDatabase;
 
@@ -70,20 +71,21 @@ export default function Finances() {
   const [acumuladoGeral, setAcumuladoGeral] = useState<any[]>([]);
 
   // Hoje
-  useEffect(() => {
-    const setupDB = async () => {
-      if (Platform.OS === "web") {
-        console.warn("SQLite não suportado na Web");
-        setDbReady(true);
-        return;
-      }
+  useFocusEffect(
+    useCallback(() => {
+      const setupDB = async () => {
+        if (Platform.OS === "web") {
+          console.warn("SQLite não suportado na Web");
+          setDbReady(true);
+          return;
+        }
 
-      db = await SQLite.openDatabaseAsync("cashflow.db", {
-        useNewConnection: true,
-      });
+        db = await SQLite.openDatabaseAsync("cashflow.db", {
+          useNewConnection: true,
+        });
 
-      // cria views caso não existam
-      await db.execAsync(`
+        // cria views caso não existam
+        await db.execAsync(`
              CREATE VIEW IF NOT EXISTS fluxo_diario AS
              SELECT 
                  transaction_date AS dia,
@@ -95,7 +97,7 @@ export default function Finances() {
              ORDER BY dia DESC;
            `);
 
-      await db.execAsync(`
+        await db.execAsync(`
              CREATE VIEW IF NOT EXISTS fluxo_mensal AS
              SELECT 
                  strftime('%Y-%m', transaction_date) AS mes,
@@ -107,7 +109,7 @@ export default function Finances() {
              ORDER BY mes DESC;
            `);
 
-      await db.execAsync(`
+        await db.execAsync(`
              CREATE VIEW IF NOT EXISTS fluxo_metodo AS
              SELECT 
                  method,
@@ -119,7 +121,7 @@ export default function Finances() {
              ORDER BY saldo DESC;
            `);
 
-      await db.execAsync(`
+        await db.execAsync(`
              CREATE VIEW IF NOT EXISTS fluxo_anual AS
              SELECT 
                  strftime('%Y', transaction_date) AS ano,
@@ -129,7 +131,7 @@ export default function Finances() {
              ORDER BY ano DESC;
            `);
 
-      await db.execAsync(`
+        await db.execAsync(`
              CREATE VIEW IF NOT EXISTS fluxo_entrada_acumulado AS
              SELECT 
              DATE('now') AS data_atual,
@@ -139,7 +141,7 @@ export default function Finances() {
              AND DATE(transaction_date) <= DATE('now');
            `);
 
-      await db.execAsync(`
+        await db.execAsync(`
              CREATE VIEW IF NOT EXISTS fluxo_saida_acumulado AS
              SELECT 
              DATE('now') AS data_atual,
@@ -148,7 +150,7 @@ export default function Finances() {
              WHERE type = 'saida'
              AND DATE(transaction_date) <= DATE('now');
            `);
-      await db.execAsync(`
+        await db.execAsync(`
              CREATE VIEW IF NOT EXISTS fluxo_geral_acumulado AS
             SELECT 
             DATE('now') AS data_atual,
@@ -157,12 +159,13 @@ export default function Finances() {
             IFNULL(SUM(CASE WHEN type='entrada' THEN amount ELSE -amount END), 0) AS saldo_geral
             FROM cashflow;
             `);
-      setDbReady(true);
-      await loadDashboard();
-    };
+        setDbReady(true);
+        await loadDashboard();
+      };
 
-    setupDB();
-  }, []);
+      setupDB();
+    }, [])
+  );
 
   // carrega dados das views dia 6 de outubro
   const loadDashboard = async () => {
@@ -368,8 +371,8 @@ export default function Finances() {
 
           <!-- Resumo Geral -->
           ${acumuladoGeral
-            .map(
-              (g) => `
+          .map(
+            (g) => `
             <div class="summary-box">
               <div class="summary-item">
                 <span>Total Entradas:</span>
@@ -385,8 +388,8 @@ export default function Finances() {
               </div>
             </div>
           `
-            )
-            .join("")}
+          )
+          .join("")}
 
           ${generateTable(
             "Fluxo Diário",
@@ -535,15 +538,15 @@ export default function Finances() {
           style={styles.btnRow}
           onPress={() => router.push("/createcashflow")}
         >
-          <Feather name="trending-up" size={20} color="#6A1B9A" />
-          <Text style={styles.latoBold}>Cadastrar transações</Text>
+          <Feather name="trending-up" size={18} color="#6A1B9A" />
+          <Text style={styles.latoBold}>Criar transações</Text>
         </Pressable>
 
         <Pressable
           style={styles.btnRow}
           onPress={() => router.push("/transations")}
         >
-          <Feather name="eye" size={20} color="#6A1B9A" />
+          <Feather name="eye" size={18} color="#6A1B9A" />
           <Text style={styles.latoBold}>Transações</Text>
         </Pressable>
       </View>
@@ -575,7 +578,7 @@ export default function Finances() {
       </Portal>
       <ScrollView
         style={{ padding: 16 }}
-        contentContainerStyle={{ paddingBottom: 50 }}
+        contentContainerStyle={{ paddingBottom: 100 }}
       >
         <Text style={{ fontSize: 22, fontWeight: "bold", marginBottom: 10 }}>
           📊 Dashboard Financeiro
@@ -583,8 +586,7 @@ export default function Finances() {
         <View
           style={{
             flexDirection: "row", // coloca os botões na horizontal
-            justifyContent: "space-between", // distribui espaço entre eles
-            alignItems: "center",
+            justifyContent: "center", // distribui espaço entre eles
             padding: 5,
             gap: 12,
           }}
@@ -595,10 +597,9 @@ export default function Finances() {
             style={{
               flex: 1,
               backgroundColor: "#E53935",
-              width: 150,
-              marginHorizontal: 15,
             }}
-            labelStyle={{ color: "#fff" }}
+            labelStyle={{ color: "#fff", fontSize: 13, marginHorizontal: 4 }}
+            contentStyle={{ paddingHorizontal: 0 }}
           >
             1. Apagar banco
           </Button>
@@ -606,10 +607,11 @@ export default function Finances() {
             mode="contained"
             onPress={deleteAllViews}
             style={{
+              flex: 1,
               backgroundColor: "#E53935",
-              width: 150,
             }}
-            labelStyle={{ color: "#fff" }}
+            labelStyle={{ color: "#fff", fontSize: 13, marginHorizontal: 4 }}
+            contentStyle={{ paddingHorizontal: 0 }}
           >
             2. Apagar fluxo
           </Button>
@@ -845,8 +847,8 @@ export default function Finances() {
             </View>
           </View>
         ))}
-        <Toast />
       </ScrollView>
+      <Footer />
     </View>
   );
 }

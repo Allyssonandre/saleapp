@@ -1,38 +1,39 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Pressable, Alert, Platform } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
 import EvilIcons from '@expo/vector-icons/EvilIcons';
-import { Button } from 'react-native-paper';
+import { Asset } from 'expo-asset';
+import * as FileSystem from 'expo-file-system/legacy';
 import * as Print from 'expo-print';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Sharing from 'expo-sharing';
 import * as SQLite from 'expo-sqlite';
+import React, { useEffect, useState } from 'react';
+import { Alert, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Button } from 'react-native-paper';
 
-function execSqlAsync(db: SQLite.WebSQLDatabase, sql: string, params: any[] = []): Promise<SQLite.SQLResultSet> {
-  return new Promise((resolve, reject) => {
-    db.transaction(tx => {
-      tx.executeSql(
-        sql,
-        params,
-        (_, result) => resolve(result),
-        (_, error) => {
-          reject(error);
-          return false;
-        }
-      );
-    });
-  });
+async function execSqlAsync(db: SQLite.SQLiteDatabase, sql: string, params: any[] = []): Promise<any> {
+  return await db.runAsync(sql, params);
+}
+
+interface SaleItem {
+  id: number;
+  nameProduct: string;
+  quantity: string;
+  cost: string;
+  client?: string;
 }
 
 export default function ReceiptScreen() {
   const { sale } = useLocalSearchParams();
   const router = useRouter();
 
-  const [db, setDb] = useState<SQLite.WebSQLDatabase | null>(null);
+  const [db, setDb] = useState<SQLite.SQLiteDatabase | null>(null);
 
   useEffect(() => {
     if (Platform.OS !== 'web') {
-      const database = SQLite.openDatabase('products.db');
-      setDb(database);
+      const initDb = async () => {
+        const database = await SQLite.openDatabaseAsync('products.db');
+        setDb(database);
+      };
+      initDb();
     }
   }, []);
 
@@ -45,15 +46,19 @@ export default function ReceiptScreen() {
     );
   }
 
-  const data = JSON.parse(sale);
-  const total = data.reduce((sum, item) => sum + parseInt(item.quantity) * parseFloat(item.cost), 0);
+  const saleString = Array.isArray(sale) ? sale[0] : sale;
+  const data: SaleItem[] = JSON.parse(saleString);
+  const total = data.reduce((sum: number, item: SaleItem) => sum + parseInt(item.quantity) * parseFloat(item.cost), 0);
 
   const updateStock = async () => {
     if (!db) return;
     try {
       for (const item of data) {
-        const currentStockResult = await execSqlAsync(db, `SELECT count FROM products WHERE id = ?`, [item.id]);
-        const currentStock = parseInt(currentStockResult.rows.item(0)?.count || '0');
+        const currentStockResult = await db.getFirstAsync<{ count: string }>(
+          `SELECT count FROM products WHERE id = ?`,
+          [item.id]
+        );
+        const currentStock = parseInt(currentStockResult?.count || '0');
         const newStock = currentStock - parseInt(item.quantity);
         await execSqlAsync(db, `UPDATE products SET count = ? WHERE id = ?`, [newStock.toString(), item.id]);
       }
@@ -64,6 +69,19 @@ export default function ReceiptScreen() {
   };
 
   const generatePDF = async () => {
+    // Carregar imagem e converter para Base64
+    let logoHtml = "";
+    try {
+      const asset = Asset.fromModule(require("../../assets/images/mmautocenter.png"));
+      await asset.downloadAsync();
+      const base64 = await FileSystem.readAsStringAsync(asset.localUri || asset.uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+      logoHtml = `<img src="data:image/png;base64,${base64}" style="width: 100px; margin-bottom: 10px;" />`;
+    } catch (e) {
+      console.log("Erro ao carregar imagem para PDF:", e);
+    }
+
     const htmlContent = `
       <!DOCTYPE html>
       <html lang="pt-br">
@@ -83,14 +101,14 @@ export default function ReceiptScreen() {
       </head>
       <body>
         <header>
-          <img src="https://upload.wikimedia.org/wikipedia/pt/3/3a/Pica-Pau.png" alt="Logo">
+          ${logoHtml}
         </header>
 
         <h1>Recibo de Compra</h1>
 
         <div class="cliente"><strong>Cliente:</strong> ${data[0]?.client || 'Não informado'}</div>
 
-        ${data.map(item => `
+        ${data.map((item: SaleItem) => `
           <div class="produto">
             <strong>${item.nameProduct}</strong>
             Qtd: ${item.quantity} — Valor unitário: R$ ${parseFloat(item.cost).toFixed(2)}<br/>
@@ -124,7 +142,7 @@ export default function ReceiptScreen() {
       <Text style={styles.titulo}>Recibo de Compra</Text>
       <Text style={styles.cliente}>Cliente: <Text style={{ fontWeight: 'bold' }}>{data[0]?.client}</Text></Text>
 
-      {data.map((item, index) => (
+      {data.map((item: SaleItem, index: number) => (
         <View key={index} style={styles.item}>
           <Text style={styles.produto}>{item.nameProduct}</Text>
           <Text>Qtd: {item.quantity}</Text>
