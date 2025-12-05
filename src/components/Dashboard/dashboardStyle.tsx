@@ -115,7 +115,7 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 6,
     elevation: 3,
-    marginBottom: 12
+    marginBottom: 12,
   },
   itemdata: {
     paddingVertical: 10,
@@ -156,7 +156,7 @@ export const styles = StyleSheet.create({
     marginTop: 20,
     fontSize: 16,
     fontWeight: "200",
-    marginBottom: 20
+    marginBottom: 20,
   },
   headerRow: {
     flexDirection: "row",
@@ -170,7 +170,7 @@ export const styles = StyleSheet.create({
     textAlign: "center",
     color: "#555",
   },
- 
+
   valueRow: {
     flexDirection: "row",
     paddingVertical: 10, // mais espaço entre linhas
@@ -181,5 +181,18 @@ export const styles = StyleSheet.create({
     textAlign: "center",
     color: "#333",
   },
-  
+  row2: {
+    flexDirection: "row",
+    gap: 12,
+  },
+
+  btnRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingVertical: 10,
+    paddingHorizontal: 25,
+    borderRadius: 10,
+    backgroundColor: "#F2E9F7",
+  },
 });

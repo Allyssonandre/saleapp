@@ -449,10 +449,9 @@ export default function Store() {
       <View style={styles.containerviewedit}>
         <View style={styles.action}>
           <IconButton
-            icon={() => <Feather name="home" size={24} color="#6A1B9A" />}
+            icon={() => <Feather name="corner-up-left" size={24} color="#6A1B9A" />}
             onPress={() => router.push("/dashboard")}
           />
-          <Text style={styles.latoBold}>Dashboard</Text>
         </View>
       </View>
 

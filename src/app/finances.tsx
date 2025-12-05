@@ -215,7 +215,7 @@ export default function Finances() {
       });
 
       // Salva o arquivo CSV
-      const fileUri = FileSystem.cacheDirectory + 'relatorio_financeiro.csv';
+      const fileUri = FileSystem.cacheDirectory + "relatorio_financeiro.csv";
       await FileSystem.writeAsStringAsync(fileUri, csv, {
         encoding: FileSystem.EncodingType.UTF8,
       });
@@ -300,13 +300,20 @@ export default function Finances() {
   // export
   const exportPDF = async () => {
     try {
-      const generateTable = (title: string, headers: string[], rows: string[][]) => {
+      const generateTable = (
+        title: string,
+        headers: string[],
+        rows: string[][]
+      ) => {
         if (rows.length === 0) return `<p>Sem dados para ${title}</p>`;
 
-        const headerRow = headers.map(h => `<th>${h}</th>`).join('');
-        const bodyRows = rows.map(row =>
-          `<tr>${row.map((cell, i) => `<td class="${i > 0 ? 'amount' : ''}">${cell}</td>`).join('')}</tr>`
-        ).join('');
+        const headerRow = headers.map((h) => `<th>${h}</th>`).join("");
+        const bodyRows = rows
+          .map(
+            (row) =>
+              `<tr>${row.map((cell, i) => `<td class="${i > 0 ? "amount" : ""}">${cell}</td>`).join("")}</tr>`
+          )
+          .join("");
 
         return `
           <div class="section">
@@ -323,7 +330,7 @@ export default function Finances() {
         const val = value ?? 0;
         const formatted = `R$ ${val.toFixed(2)}`;
         if (!colorize) return formatted;
-        return `<span class="${val >= 0 ? 'green' : 'red'}">${formatted}</span>`;
+        return `<span class="${val >= 0 ? "green" : "red"}">${formatted}</span>`;
       };
 
       const now = new Date();
@@ -360,7 +367,9 @@ export default function Finances() {
           <div class="subtitle">Gerado em ${dateStr} às ${timeStr}</div>
 
           <!-- Resumo Geral -->
-          ${acumuladoGeral.map(g => `
+          ${acumuladoGeral
+            .map(
+              (g) => `
             <div class="summary-box">
               <div class="summary-item">
                 <span>Total Entradas:</span>
@@ -375,49 +384,51 @@ export default function Finances() {
                 <span>${formatCurrency(g.saldo_geral, true)}</span>
               </div>
             </div>
-          `).join('')}
+          `
+            )
+            .join("")}
 
           ${generateTable(
-        "Fluxo Diário",
-        ["Data", "Entradas", "Saídas", "Saldo"],
-        fluxoDiario.map(d => [
-          formatDatePTBR(d.dia),
-          formatCurrency(d.total_entradas, true),
-          formatCurrency(d.total_saidas, true),
-          formatCurrency(d.saldo, true)
-        ])
-      )}
+            "Fluxo Diário",
+            ["Data", "Entradas", "Saídas", "Saldo"],
+            fluxoDiario.map((d) => [
+              formatDatePTBR(d.dia),
+              formatCurrency(d.total_entradas, true),
+              formatCurrency(d.total_saidas, true),
+              formatCurrency(d.saldo, true),
+            ])
+          )}
 
           ${generateTable(
-        "Fluxo Mensal",
-        ["Mês", "Entradas", "Saídas", "Saldo"],
-        fluxoMensal.map(m => [
-          formatMonthPTBR(m.mes),
-          formatCurrency(m.total_entradas, true),
-          formatCurrency(m.total_saidas, true),
-          formatCurrency(m.saldo, true)
-        ])
-      )}
+            "Fluxo Mensal",
+            ["Mês", "Entradas", "Saídas", "Saldo"],
+            fluxoMensal.map((m) => [
+              formatMonthPTBR(m.mes),
+              formatCurrency(m.total_entradas, true),
+              formatCurrency(m.total_saidas, true),
+              formatCurrency(m.saldo, true),
+            ])
+          )}
 
           ${generateTable(
-        "Fluxo por Método",
-        ["Método", "Entradas", "Saídas", "Saldo"],
-        fluxoMetodo.map(f => [
-          f.method,
-          formatCurrency(f.total_entradas, true),
-          formatCurrency(f.total_saidas, true),
-          formatCurrency(f.saldo, true)
-        ])
-      )}
+            "Fluxo por Método",
+            ["Método", "Entradas", "Saídas", "Saldo"],
+            fluxoMetodo.map((f) => [
+              f.method,
+              formatCurrency(f.total_entradas, true),
+              formatCurrency(f.total_saidas, true),
+              formatCurrency(f.saldo, true),
+            ])
+          )}
 
           ${generateTable(
-        "Fluxo Anual",
-        ["Ano", "Total Entradas"],
-        fluxoAnual.map(a => [
-          a.ano,
-          formatCurrency(a.total_entradas_ano, true)
-        ])
-      )}
+            "Fluxo Anual",
+            ["Ano", "Total Entradas"],
+            fluxoAnual.map((a) => [
+              a.ano,
+              formatCurrency(a.total_entradas_ano, true),
+            ])
+          )}
 
           <div class="footer">
             <p>Relatório gerado pelo App FlowCash</p>
@@ -511,45 +522,30 @@ export default function Finances() {
           />
         </Menu>
       </Appbar.Header>
+      <View style={styles.row2}>
+        <IconButton
+          icon={() => (
+            <Feather name="corner-up-left" size={20} color="#6A1B9A" />
+          )}
+          onPress={() => router.push("/dashboard")}
+        />
+      </View>
       <View style={styles.containerviewedit}>
-        <View style={styles.action}>
-          <IconButton
-            icon={() => <Feather name="home" size={20} color="#6A1B9A" />}
-            onPress={() => router.push("/dashboard")}
-          />
-          <Text
-            style={styles.latoBold}
-            onPress={() => router.push("/dashboard")}
-          >
-            Dashboard |
-          </Text>
-        </View>
-        <View style={styles.action}>
-          <IconButton
-            icon={() => (
-              <Feather name="trending-up" size={20} color="#6A1B9A" />
-            )}
-            onPress={() => router.push("/createcashflow")}
-          />
-          <Text
-            style={styles.latoBold}
-            onPress={() => router.push("/createcashflow")}
-          >
-            Cadastrar transações |
-          </Text>
-        </View>
-        <View style={styles.action}>
-          <IconButton
-            icon={() => <Feather name="eye" size={20} color="#6A1B9A" />}
-            onPress={() => router.push("/transations")}
-          />
-          <Text
-            style={styles.latoBold}
-            onPress={() => router.push("/transations")}
-          >
-            Transações
-          </Text>
-        </View>
+        <Pressable
+          style={styles.btnRow}
+          onPress={() => router.push("/createcashflow")}
+        >
+          <Feather name="trending-up" size={20} color="#6A1B9A" />
+          <Text style={styles.latoBold}>Cadastrar transações</Text>
+        </Pressable>
+
+        <Pressable
+          style={styles.btnRow}
+          onPress={() => router.push("/transations")}
+        >
+          <Feather name="eye" size={20} color="#6A1B9A" />
+          <Text style={styles.latoBold}>Transações</Text>
+        </Pressable>
       </View>
 
       <Divider style={{ width: "80%", alignSelf: "center" }} />
@@ -590,20 +586,9 @@ export default function Finances() {
             justifyContent: "space-between", // distribui espaço entre eles
             alignItems: "center",
             padding: 5,
-            gap: 1,
+            gap: 12,
           }}
         >
-          <Button
-            mode="contained"
-            onPress={deleteAllViews}
-            style={{
-              backgroundColor: "#E53935",
-              width: 150,
-            }}
-            labelStyle={{ color: "#fff" }}
-          >
-            Apagar fluxo
-          </Button>
           <Button
             mode="contained"
             onPress={clearAllTables}
@@ -615,7 +600,18 @@ export default function Finances() {
             }}
             labelStyle={{ color: "#fff" }}
           >
-            Apagar banco
+            1. Apagar banco
+          </Button>
+          <Button
+            mode="contained"
+            onPress={deleteAllViews}
+            style={{
+              backgroundColor: "#E53935",
+              width: 150,
+            }}
+            labelStyle={{ color: "#fff" }}
+          >
+            2. Apagar fluxo
           </Button>
         </View>
         {/* ---------- EXPORTAÇÃO ---------- */}

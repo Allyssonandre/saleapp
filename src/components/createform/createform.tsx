@@ -77,4 +77,18 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 10,
     color: "#333", // cor do texto
   },
+  row2: {
+    flexDirection: "row",
+    gap: 12,
+  },
+
+  btnRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingVertical: 10,
+    paddingHorizontal: 25,
+    borderRadius: 10,
+    backgroundColor: "#F2E9F7",
+  },
 });

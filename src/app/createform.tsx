@@ -2,8 +2,8 @@ import { Feather, Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import * as SQLite from "expo-sqlite";
 import React, { useEffect, useState } from "react";
-import { Alert, Text, View } from "react-native";
-import { Button, IconButton, TextInput } from "react-native-paper";
+import { Alert, Pressable, Text, View } from "react-native";
+import { Button, TextInput } from "react-native-paper";
 import Toast from "react-native-toast-message";
 import { styles } from "../components/createform/createform";
 import { toastConfig } from "../components/createform/toastConfig";
@@ -77,31 +77,21 @@ export default function CreateForm() {
     <View style={styles.container}>
       <View style={styles.form}>
         <View style={styles.containerviewedit}>
-          <View style={styles.action}>
-            <IconButton
-              icon={() => <Feather name="home" size={24} color="#6A1B9A" />}
-              onPress={() => router.push("/dashboard")}
-            />
-            <Text
-              style={styles.latoBold}
+          <View style={styles.row2}>
+            <Pressable
+              style={styles.btnRow}
               onPress={() => router.push("/dashboard")}
             >
-              Dashboard
-            </Text>
-          </View>
-          <View style={styles.action}>
-            <IconButton
-              icon={() => (
-                <Feather name="archive" size={24} color="#6A1B9A" />
-              )}
-              onPress={() => router.push("/store")}
-            />
-            <Text
-              style={styles.latoBold}
+              <Feather name="corner-up-left" size={20} color="#6A1B9A" />
+              <Text style={styles.latoBold}>Dashboard</Text>
+            </Pressable>
+            <Pressable
+              style={styles.btnRow}
               onPress={() => router.push("/store")}
             >
-             {"  "}|{"  "}Estoque
-            </Text>
+              <Feather name="corner-up-left" size={20} color="#6A1B9A" />
+              <Text style={styles.latoBold}>Estoque</Text>
+            </Pressable>
           </View>
         </View>
         <TextInput

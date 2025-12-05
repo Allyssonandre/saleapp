@@ -235,20 +235,6 @@ export default function CreateCashflow() {
         <View style={styles.action}>
           <IconButton
             icon={() => (
-              <Feather name="trending-up" size={20} color="#6A1B9A" />
-            )}
-            onPress={() => router.push("/createcashflow")}
-          />
-          <Text
-            style={styles.latoBold}
-            onPress={() => router.push("/createcashflow")}
-          >
-            Cadastrar transações
-          </Text>
-        </View>
-        <View style={styles.action}>
-          <IconButton
-            icon={() => (
               <Feather name="dollar-sign" size={20} color="#6A1B9A" />
             )}
             onPress={() => router.push("/finances")}

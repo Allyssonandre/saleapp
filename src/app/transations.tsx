@@ -2,7 +2,7 @@ import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import * as SQLite from "expo-sqlite";
 import React, { useEffect, useState } from "react";
-import { ScrollView, View } from "react-native";
+import { Pressable, ScrollView, View } from "react-native";
 import { Button, Card, IconButton, Text } from "react-native-paper";
 import { styles } from "../components/Dashboard/dashboardStyle";
 //import { Button } from "@react-navigation/elements";
@@ -30,36 +30,21 @@ export default function () {
     setTransations(updated);
   };
 
-  
   return (
     <View style={styles.container}>
+      <IconButton
+        icon={() => <Feather name="corner-up-left" size={20} color="#6A1B9A" />}
+        onPress={() => router.push("/finances")}
+      />
       <View style={styles.containerviewedit}>
-        <View style={styles.action}>
-          <IconButton
-            icon={() => <Feather name="home" size={20} color="#6A1B9A" />}
-            onPress={() => router.push("/dashboard")}
-          />
-          <Text
-            style={styles.latoBold}
-            onPress={() => router.push("/dashboard")}
+        <View style={styles.row2}>
+          <Pressable
+            style={styles.btnRow}
+            onPress={() => router.push("/createcashflow")}
           >
-            Dashboard
-          </Text>
-        </View>
-
-        <View style={styles.action}>
-          <IconButton
-            icon={() => (
-              <Feather name="dollar-sign" size={20} color="#6A1B9A" />
-            )}
-            onPress={() => router.push("/finances")}
-          />
-          <Text
-            style={styles.latoBold}
-            onPress={() => router.push("/finances")}
-          >
-            Fluxo de caixa
-          </Text>
+            <Feather name="trending-up" size={20} color="#6A1B9A" />
+            <Text style={styles.latoBold}>Cadastrar transações</Text>
+          </Pressable>
         </View>
       </View>
       <Card.Title
@@ -105,7 +90,6 @@ export default function () {
                   <Text style={[styles.valueCell, { flex: 2 }]}>
                     {item.type}
                   </Text>
-                 
                 </View>
               </Card.Content>
             </Card>
@@ -124,9 +108,9 @@ export default function () {
                 width: 150,
               }}
               labelStyle={{ color: "#fff" }}
-               onPress={() => router.push("/createcashflow")}
+              onPress={() => router.push("/createcashflow")}
             >
-              Cadastrar
+              Cadastrar transações
             </Button>
           </Text>
         )}

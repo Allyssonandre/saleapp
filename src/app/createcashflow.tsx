@@ -151,10 +151,11 @@ export default function Createcashflow() {
   return (
     <View style={styles.container}>
       <View style={styles.containerviewedit}>
+        
         <View style={styles.action}>
           <IconButton
             icon={() => (
-              <Feather name="dollar-sign" size={20} color="#6A1B9A" />
+              <Feather name="corner-up-left" size={20} color="#6A1B9A" />
             )}
             onPress={() => router.push("/finances")}
           />
