@@ -15,7 +15,7 @@ import {
   Dialog,
   IconButton,
   Portal,
-  TextInput
+  TextInput,
 } from "react-native-paper";
 import Toast from "react-native-toast-message";
 import { Footer } from "../components/common/Footer";
@@ -138,7 +138,7 @@ export default function Store() {
       });
 
       // Salva o arquivo CSV
-      const fileUri = FileSystem.cacheDirectory + 'estoque_produtos.csv';
+      const fileUri = FileSystem.cacheDirectory + "estoque_produtos.csv";
       await FileSystem.writeAsStringAsync(fileUri, csv, {
         encoding: FileSystem.EncodingType.UTF8,
       });
@@ -300,11 +300,16 @@ export default function Store() {
     // Carregar imagem e converter para Base64
     let logoHtml = "";
     try {
-      const asset = Asset.fromModule(require("../../assets/images/mmautocenter.png"));
+      const asset = Asset.fromModule(
+        require("../../assets/images/mmautocenter.png")
+      );
       await asset.downloadAsync();
-      const base64 = await FileSystem.readAsStringAsync(asset.localUri || asset.uri, {
-        encoding: FileSystem.EncodingType.Base64,
-      });
+      const base64 = await FileSystem.readAsStringAsync(
+        asset.localUri || asset.uri,
+        {
+          encoding: FileSystem.EncodingType.Base64,
+        }
+      );
       logoHtml = `<img src="data:image/png;base64,${base64}" style="width: 100px; margin-bottom: 10px;" />`;
     } catch (e) {
       console.log("Erro ao carregar imagem para PDF:", e);
@@ -459,9 +464,15 @@ export default function Store() {
         type: "success",
         text1: "Boleto gerado!",
         text2: `Cliente: ${clientName}`,
+        text1Style: {
+          fontSize: 20, // aumenta fonte do título
+          fontWeight: "bold",
+        },
+        text2Style: {
+          fontSize: 18, // aumenta fonte do subtítulo
+        },
       });
-    } catch (err) {
-    }
+    } catch (err) {}
   };
 
   const totalStockValue = products.reduce((sum, item) => {
@@ -472,23 +483,48 @@ export default function Store() {
 
   return (
     <View style={styles.container}>
-      <Appbar.Header style={{ backgroundColor: "#fff", marginTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }}>
-        <Appbar.BackAction onPress={() => router.push("/dashboard")} color="#6A1B9A" />
-        <Appbar.Content title="Estoque" titleStyle={{ color: "#6A1B9A", fontWeight: "bold" }} />
+      <Appbar.Header
+        style={{
+          backgroundColor: "#fff",
+          marginTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+        }}
+      >
+        <Appbar.BackAction
+          onPress={() => router.push("/dashboard")}
+          color="#6A1B9A"
+        />
+        <Appbar.Content
+          title="Estoque"
+          titleStyle={{ color: "#6A1B9A", fontWeight: "bold" }}
+        />
         {products.length > 0 && (
           <View style={{ flexDirection: "row" }}>
-            <IconButton icon="delete-sweep" iconColor="#d32f2f" onPress={confirmResetStore} />
+            <IconButton
+              icon="delete-sweep"
+              iconColor="#d32f2f"
+              onPress={confirmResetStore}
+            />
           </View>
         )}
       </Appbar.Header>
 
       {products.length === 0 ? (
-        <View style={{ flex: 1, justifyContent: "center", alignItems: "center", marginTop: 50 }}>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            marginTop: 50,
+          }}
+        >
           <Feather name="package" size={60} color="#ccc" />
-          <Text style={{ color: "#999", fontSize: 16, marginTop: 10 }}>Seu estoque está vazio.</Text>
+          <Text style={{ color: "#999", fontSize: 16, marginTop: 10 }}>
+            Seu estoque está vazio.
+          </Text>
           <Button
             mode="contained"
             style={{ marginTop: 20, backgroundColor: "#6A1B9A" }}
+            labelStyle={{color: "#fff"}}
             onPress={() => router.push("/createform")}
           >
             Adicionar Primeiro Produto
@@ -498,7 +534,13 @@ export default function Store() {
 
       {products.length > 0 && (
         <Card style={{ margin: 10, backgroundColor: "#6A1B9A", padding: 10 }}>
-          <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
             <View>
               <Text style={{ color: "#fff", fontWeight: "bold", fontSize: 16 }}>
                 Valor Total em Estoque
@@ -522,13 +564,17 @@ export default function Store() {
         contentContainerStyle={{ padding: 10, paddingBottom: 150 }}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <Card style={{ marginBottom: 15, backgroundColor: "#fff", elevation: 3 }}>
+          <Card
+            style={{ marginBottom: 15, backgroundColor: "#fff", elevation: 3 }}
+          >
             <Card.Title
               title={capitalizeFirstLetter(item.nameProduct)}
               subtitle={`Qtd: ${item.count} | Custo: R$ ${item.cost}`}
               titleStyle={{ fontWeight: "bold", color: "#6A1B9A" }}
               subtitleStyle={{ color: "#777" }}
-              left={(props) => <Feather {...props} name="package" size={30} color="#6A1B9A" />}
+              left={(props) => (
+                <Feather {...props} name="package" size={30} color="#6A1B9A" />
+              )}
             />
             <Card.Actions>
               {parseInt(item.count) <= 0 ? (
@@ -578,25 +624,23 @@ export default function Store() {
         )}
       />
 
-      {
-        products.length > 0 && (
-          <Button
-            icon="plus"
-            mode="contained"
-            textColor="#fff"
-            style={{
-              position: "absolute",
-              bottom: 80,
-              right: 20,
-              backgroundColor: "#6A1B9A",
-              elevation: 5
-            }}
-            onPress={() => router.push("/createform")}
-          >
-            Novo Produto
-          </Button>
-        )
-      }
+      {products.length > 0 && (
+        <Button
+          icon="plus"
+          mode="contained"
+          textColor="#fff"
+          style={{
+            position: "absolute",
+            bottom: 80,
+            right: 20,
+            backgroundColor: "#6A1B9A",
+            elevation: 5,
+          }}
+          onPress={() => router.push("/createform")}
+        >
+          Novo Produto
+        </Button>
+      )}
       {/* Modal Reabastecer */}
       <Portal>
         <Dialog
@@ -781,7 +825,7 @@ export default function Store() {
         </Dialog>
       </Portal>
       {/* 🔹 NOVO: Dialog de exclusão */}
-      < Portal >
+      <Portal>
         <Dialog
           visible={deleteDialogVisible}
           onDismiss={() => setDeleteDialogVisible(false)}
@@ -822,9 +866,9 @@ export default function Store() {
             </Button>
           </Dialog.Actions>
         </Dialog>
-      </Portal >
+      </Portal>
       {/* 🔹 NOVO: Dialog de reset do estoque */}
-      < Portal >
+      <Portal>
         <Dialog
           visible={resetDialogVisible}
           onDismiss={() => setResetDialogVisible(false)}
@@ -858,10 +902,10 @@ export default function Store() {
             </Button>
           </Dialog.Actions>
         </Dialog>
-      </Portal >
+      </Portal>
 
       <Toast />
       <Footer />
-    </View >
+    </View>
   );
 }

@@ -5,6 +5,7 @@ import {
 } from "@expo/vector-icons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Fontisto from "@expo/vector-icons/Fontisto";
+import { Asset } from "expo-asset";
 import * as FileSystem from "expo-file-system/legacy";
 import * as Print from "expo-print";
 import { useRouter } from "expo-router";
@@ -303,6 +304,19 @@ export default function Finances() {
   // export
   const exportPDF = async () => {
     try {
+      // Carrega e converte o logo para base64
+      let logoBase64 = "";
+      try {
+        const asset = Asset.fromModule(require("../../assets/images/mmautocenter.png"));
+        await asset.downloadAsync();
+        const base64 = await FileSystem.readAsStringAsync(asset.localUri!, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+        logoBase64 = `data:image/png;base64,${base64}`;
+      } catch (logoError) {
+        console.warn("Erro ao carregar logo:", logoError);
+      }
+
       const generateTable = (
         title: string,
         headers: string[],
@@ -345,6 +359,8 @@ export default function Finances() {
         <head>
           <style>
             body { font-family: 'Helvetica', 'Arial', sans-serif; padding: 20px; color: #333; }
+            .header-container { text-align: center; margin-bottom: 20px; }
+            .logo { width: 80px; height: 80px; margin: 0 auto 10px; display: block; }
             .company-name { color: #6A1B9A; text-align: center; margin-bottom: 5px; font-size: 28px; font-weight: bold; }
             .company-subtitle { text-align: center; color: #6A1B9A; font-size: 16px; margin-bottom: 10px; font-style: italic; }
             h1 { color: #6A1B9A; text-align: center; margin-bottom: 5px; font-size: 22px; }
@@ -364,8 +380,11 @@ export default function Finances() {
           </style>
         </head>
         <body>
-          <div class="company-name">MM Auto Center</div>
-          <div class="company-subtitle">Alinhamento, balanceamento e cambagem</div>
+          <div class="header-container">
+            ${logoBase64 ? `<img src="${logoBase64}" class="logo" alt="MM Auto Center Logo" />` : ""}
+            <div class="company-name">MM Auto Center</div>
+            <div class="company-subtitle">Alinhamento, balanceamento e cambagem</div>
+          </div>
           <h1>Relatório Financeiro</h1>
           <div class="subtitle">Gerado em ${dateStr} às ${timeStr}</div>
 

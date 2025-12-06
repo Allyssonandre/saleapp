@@ -200,7 +200,7 @@ export default function CreateCashflow() {
                 </View>
 
                 {/* Fluxo de Caixa */}
-                <View style={{ marginBottom: 8 }}>
+                <View style={{ marginBottom: 16 }}>
                   <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
                     <Feather name="dollar-sign" size={18} color="#6A1B9A" />
                     <PaperText
@@ -215,6 +215,25 @@ export default function CreateCashflow() {
                     diárias, mensais e anuais, análise por método de pagamento e
                     valores acumulados. Exporte relatórios profissionais em PDF ou
                     CSV para análise e compartilhamento.
+                  </PaperText>
+                </View>
+
+                {/* Geolocalização */}
+                <View style={{ marginBottom: 8 }}>
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                    <Feather name="map-pin" size={18} color="#6A1B9A" />
+                    <PaperText
+                      variant="titleSmall"
+                      style={{ color: "#6A1B9A", fontWeight: "bold" }}
+                    >
+                      Geolocalização
+                    </PaperText>
+                  </View>
+                  <PaperText variant="bodyMedium" style={{ marginTop: 4, color: "#555" }}>
+                    Gere links de localização do Google Maps a partir de endereços.
+                    Digite um endereço completo e compartilhe a localização com
+                    clientes ou parceiros através de WhatsApp, e-mail ou outras
+                    plataformas.
                   </PaperText>
                 </View>
               </View>
@@ -245,6 +264,20 @@ export default function CreateCashflow() {
             onPress={() => router.push("/finances")}
           >
             Fluxo de caixa
+          </Text>
+        </View>
+        <View style={styles.action}>
+          <IconButton
+            icon={() => (
+              <Feather name="map-pin" size={20} color="#6A1B9A" />
+            )}
+            onPress={() => router.push("/geolocation")}
+          />
+          <Text
+            style={styles.latoBold}
+            onPress={() => router.push("/geolocation")}
+          >
+            Geolocalização
           </Text>
         </View>
       </View>
