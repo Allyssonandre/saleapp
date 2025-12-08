@@ -157,6 +157,7 @@ export default function Geolocation() {
                             placeholder="Ex: Rua das Flores, 123, Centro, Natal - RN"
                             activeOutlineColor="#6A1B9A"
                             outlineColor="#9C27B0"
+                            textColor="#000"
                             style={{ backgroundColor: "#fff", marginBottom: 8 }}
                             left={<TextInput.Icon icon="map-marker" color="#6A1B9A" />}
                         />
@@ -170,12 +171,13 @@ export default function Geolocation() {
                             onPress={generateMapLink}
                             loading={isLoading}
                             disabled={isLoading || !address.trim()}
+                            buttonColor="#6D78C6"
+                            textColor="#fff"
                             style={{
-                                backgroundColor: "#6A1B9A",
                                 marginTop: 16,
                                 paddingVertical: 6,
                             }}
-                            labelStyle={{ fontSize: 16, fontWeight: "bold" }}
+                            labelStyle={{ fontSize: 16, fontWeight: "bold", color: "#fff" }}
                             icon="map-search"
                         >
                             Gerar Link

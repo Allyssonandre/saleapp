@@ -3,7 +3,7 @@ import { useFocusEffect, useRouter } from "expo-router";
 import * as SQLite from "expo-sqlite";
 import React, { useCallback, useState } from "react";
 import { Pressable, ScrollView, View } from "react-native";
-import { Button, Card, Dialog, IconButton, Portal, Text } from "react-native-paper";
+import { Button, Card, Dialog, IconButton, Portal, Text, TextInput } from "react-native-paper";
 import { Footer } from "../components/common/Footer";
 import { styles } from "../components/Dashboard/dashboardStyle";
 //import { Button } from "@react-navigation/elements";
@@ -36,6 +36,8 @@ export default function () {
   const [transaction, setTransations] = useState<any[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
+  // 🔹 NOVO: State para pesquisa de transações
+  const [searchQuery, setSearchQuery] = useState("");
 
   useFocusEffect(
     useCallback(() => {
@@ -82,6 +84,11 @@ export default function () {
     setEditingId(id);
     setModalVisible(true);
   };
+
+  // 🔹 Filtra transações baseado na pesquisa
+  const filteredTransactions = transaction.filter((item) =>
+    item.description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <View style={styles.container}>
@@ -149,12 +156,45 @@ export default function () {
         title="💰 Histórico de Transações"
         titleStyle={{ fontWeight: "bold", color: "#6A1B9A" }}
       />
+
+      {/* 🔹 NOVO: Input de pesquisa */}
+      {transaction.length > 0 && (
+        <View style={{ paddingHorizontal: 16, paddingBottom: 10 }}>
+          <TextInput
+            mode="outlined"
+            label="Pesquisar transação"
+            placeholder="Digite a descrição..."
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            left={<TextInput.Icon icon="magnify" color="#6A1B9A" />}
+            right={
+              searchQuery ? (
+                <TextInput.Icon
+                  icon="close"
+                  color="#6A1B9A"
+                  onPress={() => setSearchQuery("")}
+                />
+              ) : null
+            }
+            style={{ backgroundColor: "#fff" }}
+            outlineColor="#6A1B9A"
+            activeOutlineColor="#6A1B9A"
+            textColor="#000"
+            theme={{
+              colors: {
+                placeholder: "#999",
+              },
+            }}
+          />
+        </View>
+      )}
+
       <ScrollView
         style={{ padding: 16 }}
         contentContainerStyle={{ paddingBottom: 100 }}
       >
-        {transaction.length > 0 ? (
-          transaction.map((item, index) => (
+        {filteredTransactions.length > 0 ? (
+          filteredTransactions.map((item, index) => (
             <Card key={index} style={styles.carddata} mode="elevated">
               <Card.Content>
                 {/* Cabeçalho tipo Excel */}
@@ -254,25 +294,61 @@ export default function () {
               </Card.Content>
             </Card>
           ))
-        ) : (
-          <Text
-            style={styles.empty}
-            onPress={() => router.push("/createcashflow")}
+        ) : searchQuery && transaction.length > 0 ? (
+          // 🔹 NOVO: Mensagem quando pesquisa não retorna resultados
+          <View
+            style={{
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "center",
+              marginTop: 50,
+              paddingHorizontal: 20,
+            }}
           >
-            Nenhuma transação encontrada!!
-            <Button
-              icon={() => <Feather name="trending-up" size={20} color="#fff" />}
-              mode="contained"
+            <Feather name="search" size={60} color="#ccc" />
+            <Text
               style={{
-                backgroundColor: "#520f7cff",
-                width: 150,
+                color: "#999",
+                fontSize: 16,
+                marginTop: 10,
+                textAlign: "center",
               }}
+            >
+              Nenhuma transação encontrada para "{searchQuery}"
+            </Text>
+            <Text
+              style={{
+                color: "#bbb",
+                fontSize: 14,
+                marginTop: 5,
+                textAlign: "center",
+              }}
+            >
+              Tente pesquisar com outro termo
+            </Text>
+          </View>
+        ) : (
+          <View
+            style={{
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "center",
+              marginTop: 50,
+            }}
+          >
+            <Feather name="trending-up" size={60} color="#ccc" />
+            <Text style={{ color: "#999", fontSize: 16, marginTop: 10 }}>
+              Nenhuma transação cadastrada.
+            </Text>
+            <Button
+              mode="contained"
+              style={{ marginTop: 20, backgroundColor: "#6A1B9A" }}
               labelStyle={{ color: "#fff" }}
               onPress={() => router.push("/createcashflow")}
             >
-              Criar transações
+              Criar Primeira Transação
             </Button>
-          </Text>
+          </View>
         )}
       </ScrollView>
 

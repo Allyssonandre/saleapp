@@ -39,6 +39,8 @@ export default function Store() {
   const [replenishAmount, setReplenishAmount] = useState("1");
   const [clientName, setClientName] = useState("");
   const [saleQuantity, setSaleQuantity] = useState("1");
+  // 🔹 NOVO: State para pesquisa de produtos
+  const [searchQuery, setSearchQuery] = useState("");
   // 🔹 NOVO: States para controle do dialog de exclusão
   const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
   const [productToDelete, setProductToDelete] = useState<{
@@ -472,8 +474,13 @@ export default function Store() {
           fontSize: 18, // aumenta fonte do subtítulo
         },
       });
-    } catch (err) {}
+    } catch (err) { }
   };
+
+  // 🔹 Filtra produtos baseado na pesquisa
+  const filteredProducts = products.filter((product) =>
+    product.nameProduct.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const totalStockValue = products.reduce((sum, item) => {
     const cost = parseFloat(item.cost.toString().replace(",", "."));
@@ -524,13 +531,45 @@ export default function Store() {
           <Button
             mode="contained"
             style={{ marginTop: 20, backgroundColor: "#6A1B9A" }}
-            labelStyle={{color: "#fff"}}
+            labelStyle={{ color: "#fff" }}
             onPress={() => router.push("/createform")}
           >
             Adicionar Primeiro Produto
           </Button>
         </View>
       ) : null}
+
+      {/* 🔹 NOVO: Input de pesquisa */}
+      {products.length > 0 && (
+        <View style={{ paddingHorizontal: 10, paddingTop: 10 }}>
+          <TextInput
+            mode="outlined"
+            label="Pesquisar produto"
+            placeholder="Digite o nome do produto..."
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            left={<TextInput.Icon icon="magnify" color="#6A1B9A" />}
+            right={
+              searchQuery ? (
+                <TextInput.Icon
+                  icon="close"
+                  color="#6A1B9A"
+                  onPress={() => setSearchQuery("")}
+                />
+              ) : null
+            }
+            style={{ backgroundColor: "#fff" }}
+            outlineColor="#6A1B9A"
+            activeOutlineColor="#6A1B9A"
+            textColor="#000"
+            theme={{
+              colors: {
+                placeholder: "#999",
+              },
+            }}
+          />
+        </View>
+      )}
 
       {products.length > 0 && (
         <Card style={{ margin: 10, backgroundColor: "#6A1B9A", padding: 10 }}>
@@ -560,9 +599,44 @@ export default function Store() {
       )}
 
       <FlatList
-        data={products}
+        data={filteredProducts}
         contentContainerStyle={{ padding: 10, paddingBottom: 150 }}
         keyExtractor={(item) => item.id.toString()}
+        ListEmptyComponent={
+          searchQuery ? (
+            <View
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+                marginTop: 50,
+                paddingHorizontal: 20,
+              }}
+            >
+              <Feather name="search" size={60} color="#ccc" />
+              <Text
+                style={{
+                  color: "#999",
+                  fontSize: 16,
+                  marginTop: 10,
+                  textAlign: "center",
+                }}
+              >
+                Nenhum produto encontrado para "{searchQuery}"
+              </Text>
+              <Text
+                style={{
+                  color: "#bbb",
+                  fontSize: 14,
+                  marginTop: 5,
+                  textAlign: "center",
+                }}
+              >
+                Tente pesquisar com outro termo
+              </Text>
+            </View>
+          ) : null
+        }
         renderItem={({ item }) => (
           <Card
             style={{ marginBottom: 15, backgroundColor: "#fff", elevation: 3 }}

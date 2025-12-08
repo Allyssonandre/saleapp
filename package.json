@@ -19,6 +19,7 @@
     "@gluestack-ui/config": "^1.1.20",
     "@gluestack-ui/themed": "^1.1.73",
     "@gluestack-ui/toast": "^1.0.9",
+    "@react-native-community/netinfo": "^11.4.1",
     "@react-native-picker/picker": "2.11.1",
     "@react-navigation/bottom-tabs": "^7.3.10",
     "@react-navigation/elements": "^2.3.8",

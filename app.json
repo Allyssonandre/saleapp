@@ -21,7 +21,11 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": false,
-      "package": "com.andrealn.projectapp"
+      "package": "com.andrealn.projectapp",
+      "permissions": [
+        "ACCESS_NETWORK_STATE",
+        "INTERNET"
+      ]
     },
     "web": {
       "bundler": "metro",

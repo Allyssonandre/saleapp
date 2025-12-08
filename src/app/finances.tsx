@@ -261,7 +261,7 @@ export default function Finances() {
 
       Toast.show({
         type: "success",
-        text1: "Views excluídas com sucesso!",
+        text1: "Dados excluídos com sucesso!",
         text1Style: { fontSize: 20, fontWeight: "600" },
       });
     } catch (error) {
@@ -284,7 +284,7 @@ export default function Finances() {
 
       Toast.show({
         type: "success",
-        text1: "Dados das tabelas apagados!",
+        text1: "Dados apagados!",
         text1Style: { fontSize: 20, fontWeight: "600" },
       });
 
@@ -840,7 +840,7 @@ export default function Finances() {
               <Divider style={{ marginVertical: 6 }} />
               <Text style={{ fontSize: 16 }}>
                 <Fontisto name="date" size={18} color="black" /> Data Atual:{""}
-                {g.data_atual}
+                {formatDatePTBR(g.data_atual)}
               </Text>
               <Text style={{ fontSize: 16 }}>
                 <AntDesign name="download" size={20} color="black" /> Total

@@ -3,6 +3,7 @@ import {
   FontAwesome5,
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
+import NetInfo from "@react-native-community/netinfo";
 import { useRouter } from "expo-router";
 import * as SQLite from "expo-sqlite";
 import React, { useEffect, useState } from "react";
@@ -28,9 +29,19 @@ export default function CreateCashflow() {
   const router = useRouter();
   const [showDialog, setShowDialog] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [isConnected, setIsConnected] = useState(true);
 
   // 🔹 Referência para banco SQLite
   let db: SQLite.SQLiteDatabase;
+
+  // Verifica conexão com internet
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener(state => {
+      setIsConnected(state.isConnected ?? false);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   // Verifica estoque baixo (exemplo, pode remover se não precisar)
   useEffect(() => {
@@ -267,12 +278,37 @@ export default function CreateCashflow() {
           </Text>
         </View>
         <View style={styles.action}>
-          <IconButton
-            icon={() => (
-              <Feather name="map-pin" size={20} color="#6A1B9A" />
-            )}
-            onPress={() => router.push("/geolocation")}
-          />
+          <View style={{ position: 'relative' }}>
+            <IconButton
+              icon={() => (
+                <Feather name="map-pin" size={20} color="#6A1B9A" />
+              )}
+              onPress={() => router.push("/geolocation")}
+            />
+            {/* Badge de Internet */}
+            <View
+              style={{
+                position: 'absolute',
+                top: 4,
+                right: 4,
+                backgroundColor: isConnected ? '#4CAF50' : '#F44336',
+                borderRadius: 10,
+                width: 18,
+                height: 18,
+                justifyContent: 'center',
+                alignItems: 'center',
+                borderWidth: 1.5,
+                borderColor: '#fff',
+                elevation: 2,
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: 0.2,
+                shadowRadius: 2,
+              }}
+            >
+              <Feather name={isConnected ? "wifi" : "wifi-off"} size={10} color="#fff" />
+            </View>
+          </View>
           <Text
             style={styles.latoBold}
             onPress={() => router.push("/geolocation")}
